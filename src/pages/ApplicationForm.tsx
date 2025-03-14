@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ApplicationForm = () => {
   const [date, setDate] = useState<Date>();
+  const [hasDisability, setHasDisability] = useState<string>("no");
   
   // These would typically come from API or database
   const ethnicityOptions = [
@@ -36,6 +36,15 @@ const ApplicationForm = () => {
     "Nigeria",
     "Kenya",
     "Other",
+  ];
+
+  const disabilityTypeOptions = [
+    "Visual Impairment",
+    "Hearing Impairment",
+    "Physical Disability",
+    "Cognitive Disability",
+    "Speech Disability",
+    "Other"
   ];
 
   return (
@@ -169,7 +178,11 @@ const ApplicationForm = () => {
 
             <div className="space-y-2">
               <Label>Are you living with a disability? <span className="text-red-500">*</span></Label>
-              <RadioGroup defaultValue="no">
+              <RadioGroup 
+                value={hasDisability} 
+                onValueChange={setHasDisability}
+                defaultValue="no"
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="disability-yes" />
                   <Label htmlFor="disability-yes">Yes</Label>
@@ -180,6 +193,48 @@ const ApplicationForm = () => {
                 </div>
               </RadioGroup>
             </div>
+
+            {hasDisability === "yes" && (
+              <div className="space-y-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+                <div className="space-y-2">
+                  <Label htmlFor="disability-type">Nature of Disability <span className="text-red-500">*</span></Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select disability type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {disabilityTypeOptions.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="disability-certificate">Disability Certificate <span className="text-red-500">*</span></Label>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2"
+                      type="button"
+                      onClick={() => document.getElementById('disability-certificate-upload')?.click()}
+                    >
+                      <Upload size={16} />
+                      Upload Certificate
+                    </Button>
+                    <input
+                      id="disability-certificate-upload"
+                      type="file"
+                      accept="application/pdf,image/*"
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, JPG, PNG (Max: 5MB)</p>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="education">
