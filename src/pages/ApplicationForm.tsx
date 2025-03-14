@@ -1,0 +1,231 @@
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const ApplicationForm = () => {
+  const [date, setDate] = useState<Date>();
+  
+  // These would typically come from API or database
+  const ethnicityOptions = [
+    "Asian/Asian British",
+    "Black/African/Caribbean/Black British",
+    "Mixed/Multiple ethnic groups",
+    "White",
+    "Other ethnic group",
+    "Prefer not to say",
+  ];
+
+  const countryOptions = [
+    "United Kingdom",
+    "United States",
+    "Canada",
+    "Australia",
+    "Ireland",
+    "New Zealand",
+    "South Africa",
+    "Nigeria",
+    "Kenya",
+    "Other",
+  ];
+
+  return (
+    <div className="container py-8 mx-auto max-w-4xl">
+      <div className="p-6 bg-white rounded-lg shadow-sm border">
+        <h1 className="text-2xl font-bold mb-2">Job Application Form</h1>
+        <p className="text-gray-500 mb-6">
+          Please fill out all required fields to submit your application.
+        </p>
+
+        <Tabs defaultValue="personal">
+          <TabsList className="grid grid-cols-7 mb-8">
+            <TabsTrigger value="personal">Personal</TabsTrigger>
+            <TabsTrigger value="education">Education</TabsTrigger>
+            <TabsTrigger value="experience">Experience</TabsTrigger>
+            <TabsTrigger value="courses">Short Courses</TabsTrigger>
+            <TabsTrigger value="bodies">Professional Bodies</TabsTrigger>
+            <TabsTrigger value="publications">Publications</TabsTrigger>
+            <TabsTrigger value="referees">Referees</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="personal" className="space-y-6">
+            <div className="grid grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
+                <Input id="firstName" placeholder="John" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="middleName">Middle Name</Label>
+                <Input id="middleName" placeholder="David" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
+                <Input id="lastName" placeholder="Doe" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Physical Address <span className="text-red-500">*</span></Label>
+              <Input id="address" placeholder="123 Main St, City, Country" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Gender <span className="text-red-500">*</span></Label>
+              <RadioGroup defaultValue="male">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="male" id="male" />
+                  <Label htmlFor="male">Male</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="female" id="female" />
+                  <Label htmlFor="female">Female</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other" />
+                  <Label htmlFor="other">Other</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+                <Input id="email" type="email" placeholder="john.doe@example.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                <Input id="phone" placeholder="+254 123 456 789" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Date of Birth <span className="text-red-500">*</span></Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label>Ethnicity <span className="text-red-500">*</span></Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your ethnicity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ethnicityOptions.map((ethnicity) => (
+                      <SelectItem key={ethnicity} value={ethnicity}>
+                        {ethnicity}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Home County <span className="text-red-500">*</span></Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your home county" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countryOptions.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Are you living with a disability? <span className="text-red-500">*</span></Label>
+              <RadioGroup defaultValue="no">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="disability-yes" />
+                  <Label htmlFor="disability-yes">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="disability-no" />
+                  <Label htmlFor="disability-no">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="education">
+            <div className="py-4 text-center text-gray-500">
+              Education information form will go here.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="experience">
+            <div className="py-4 text-center text-gray-500">
+              Experience information form will go here.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="courses">
+            <div className="py-4 text-center text-gray-500">
+              Short courses information form will go here.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="bodies">
+            <div className="py-4 text-center text-gray-500">
+              Professional bodies information form will go here.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="publications">
+            <div className="py-4 text-center text-gray-500">
+              Publications information form will go here.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="referees">
+            <div className="py-4 text-center text-gray-500">
+              Referees information form will go here.
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="mt-6 flex justify-end space-x-2">
+          <Button variant="outline">Previous</Button>
+          <Button>Next</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ApplicationForm;
