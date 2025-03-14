@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, differenceInMonths } from "date-fns";
-import { CalendarIcon, Plus, Upload } from "lucide-react";
+import { CalendarIcon, Plus, Upload, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -89,6 +89,26 @@ const ApplicationForm = () => {
   const addExperienceEntry = () => {
     const newId = experiences.length > 0 ? Math.max(...experiences.map(e => e.id)) + 1 : 1;
     setExperiences([...experiences, { id: newId }]);
+  };
+
+  const removeExperienceEntry = (idToRemove: number) => {
+    if (experiences.length <= 1) {
+      return;
+    }
+    
+    setExperiences(experiences.filter(exp => exp.id !== idToRemove));
+    
+    setStartDates(prev => {
+      const newDates = { ...prev };
+      delete newDates[idToRemove];
+      return newDates;
+    });
+    
+    setEndDates(prev => {
+      const newDates = { ...prev };
+      delete newDates[idToRemove];
+      return newDates;
+    });
   };
 
   const handleStartDateChange = (date: Date | undefined, id: number) => {
@@ -421,7 +441,21 @@ const ApplicationForm = () => {
           <TabsContent value="experience" className="space-y-6">
             {experiences.map((experience, index) => (
               <div key={experience.id} className="space-y-6 border-b pb-8 last:border-b-0">
-                <h2 className="text-lg font-semibold">Work Experience #{index + 1}</h2>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Work Experience #{index + 1}</h2>
+                  {experiences.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeExperienceEntry(experience.id)}
+                    >
+                      <Trash2 size={16} className="mr-2" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -563,3 +597,4 @@ const ApplicationForm = () => {
 };
 
 export default ApplicationForm;
+
