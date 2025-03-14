@@ -8,12 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Upload } from "lucide-react";
+import { CalendarIcon, Plus, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 const ApplicationForm = () => {
   const [date, setDate] = useState<Date>();
   const [hasDisability, setHasDisability] = useState<string>("no");
+  const [educations, setEducations] = useState([{ id: 1 }]);
+  const [graduationDates, setGraduationDates] = useState<{ [key: number]: Date | undefined }>({});
   
   // These would typically come from API or database
   const ethnicityOptions = [
@@ -46,6 +49,29 @@ const ApplicationForm = () => {
     "Speech Disability",
     "Other"
   ];
+
+  const educationLevelOptions = [
+    "High School",
+    "Associate's Degree",
+    "Bachelor's Degree",
+    "Master's Degree",
+    "Doctorate/PhD",
+    "Professional Certification",
+    "Vocational Training",
+    "Other"
+  ];
+
+  const addEducationEntry = () => {
+    const newId = educations.length > 0 ? Math.max(...educations.map(e => e.id)) + 1 : 1;
+    setEducations([...educations, { id: newId }]);
+  };
+
+  const handleGraduationDateChange = (date: Date | undefined, id: number) => {
+    setGraduationDates(prev => ({
+      ...prev,
+      [id]: date
+    }));
+  };
 
   return (
     <div className="container py-8 mx-auto max-w-4xl">
@@ -237,10 +263,109 @@ const ApplicationForm = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="education">
-            <div className="py-4 text-center text-gray-500">
-              Education information form will go here.
-            </div>
+          <TabsContent value="education" className="space-y-8">
+            {educations.map((education, index) => (
+              <div key={education.id} className="space-y-6 border-b pb-8 last:border-b-0">
+                <h2 className="text-lg font-semibold">Education Entry #{index + 1}</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor={`education-level-${education.id}`}>Education Level <span className="text-red-500">*</span></Label>
+                    <Select>
+                      <SelectTrigger id={`education-level-${education.id}`}>
+                        <SelectValue placeholder="Select education level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {educationLevelOptions.map((level) => (
+                          <SelectItem key={`${education.id}-${level}`} value={level}>
+                            {level}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor={`institution-${education.id}`}>Institution <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id={`institution-${education.id}`} 
+                      placeholder="University/College Name" 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor={`field-of-study-${education.id}`}>Field of Study</Label>
+                    <Input 
+                      id={`field-of-study-${education.id}`} 
+                      placeholder="e.g., Computer Science" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Graduation Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !graduationDates[education.id] && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {graduationDates[education.id] 
+                            ? format(graduationDates[education.id] as Date, "PPP") 
+                            : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={graduationDates[education.id]}
+                          onSelect={(date) => handleGraduationDateChange(date, education.id)}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`certificate-${education.id}`}>Certificate</Label>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2"
+                      type="button"
+                      onClick={() => document.getElementById(`certificate-upload-${education.id}`)?.click()}
+                    >
+                      <Upload size={16} />
+                      Upload Certificate
+                    </Button>
+                    <input
+                      id={`certificate-upload-${education.id}`}
+                      type="file"
+                      accept="application/pdf,image/*"
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Upload your certificate for this education level (PDF, JPG, or PNG format)</p>
+                </div>
+              </div>
+            ))}
+
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={addEducationEntry}
+            >
+              <Plus size={16} />
+              Add Another Education Entry
+            </Button>
           </TabsContent>
 
           <TabsContent value="experience">
@@ -274,7 +399,7 @@ const ApplicationForm = () => {
           </TabsContent>
         </Tabs>
 
-        <div className="mt-6 flex justify-end space-x-2">
+        <div className="mt-6 flex justify-between">
           <Button variant="outline">Previous</Button>
           <Button>Next</Button>
         </div>
