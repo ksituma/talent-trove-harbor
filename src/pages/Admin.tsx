@@ -1,11 +1,16 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChartIcon, PieChartIcon, LineChartIcon, Users, Briefcase, FileText } from "lucide-react";
+import { BarChartIcon, PieChartIcon, LineChartIcon, Users, Briefcase, FileText, Plus, Search, Filter, Trash2 } from "lucide-react";
 
 // Sample data - in a real application, this would come from your API/database
 const applicationData = [
@@ -25,6 +30,174 @@ const jobCategoryData = [
   { name: 'HR', value: 10 },
   { name: 'Operations', value: 15 },
   { name: 'Sales', value: 25 },
+];
+
+// Sample job listings
+const initialJobListings = [
+  {
+    id: 1,
+    title: "Senior Researcher",
+    department: "Research and Policy",
+    location: "Nairobi",
+    type: "Full-time",
+    experience: "5+ years",
+    education: "PhD",
+    status: "Open",
+    applications: 24,
+    postDate: "2023-06-15",
+    closingDate: "2023-07-15",
+    description: "We are looking for a Senior Researcher to join our dynamic team...",
+    requirements: [
+      "PhD in relevant field",
+      "5+ years of research experience",
+      "Strong publication record",
+      "Experience in policy analysis"
+    ]
+  },
+  {
+    id: 2,
+    title: "Administrative Officer",
+    department: "Administration",
+    location: "Mombasa",
+    type: "Full-time",
+    experience: "3+ years",
+    education: "Bachelor's",
+    status: "Open",
+    applications: 42,
+    postDate: "2023-06-20",
+    closingDate: "2023-07-20",
+    description: "We are seeking an Administrative Officer to support our operations...",
+    requirements: [
+      "Bachelor's degree in Business Administration or related field",
+      "3+ years of administrative experience",
+      "Proficiency in MS Office",
+      "Strong organizational skills"
+    ]
+  },
+  {
+    id: 3,
+    title: "Training Coordinator",
+    department: "Training",
+    location: "Nakuru",
+    type: "Full-time",
+    experience: "2+ years",
+    education: "Bachelor's",
+    status: "Closed",
+    applications: 38,
+    postDate: "2023-05-10",
+    closingDate: "2023-06-10",
+    description: "We are looking for a Training Coordinator to organize and facilitate training programs...",
+    requirements: [
+      "Bachelor's degree in Education, HR, or related field",
+      "2+ years of experience in training coordination",
+      "Excellent communication skills",
+      "Experience in curriculum development"
+    ]
+  },
+  {
+    id: 4,
+    title: "Finance Manager",
+    department: "Finance",
+    location: "Nairobi",
+    type: "Full-time",
+    experience: "7+ years",
+    education: "Master's",
+    status: "Open",
+    applications: 18,
+    postDate: "2023-06-25",
+    closingDate: "2023-07-25",
+    description: "We are seeking a Finance Manager to oversee our financial operations...",
+    requirements: [
+      "Master's degree in Finance, Accounting, or related field",
+      "7+ years of experience in financial management",
+      "CPA certification",
+      "Experience in public sector finance"
+    ]
+  },
+  {
+    id: 5,
+    title: "ICT Officer",
+    department: "ICT",
+    location: "Nairobi",
+    type: "Full-time",
+    experience: "3+ years",
+    education: "Bachelor's",
+    status: "Open",
+    applications: 31,
+    postDate: "2023-06-18",
+    closingDate: "2023-07-18",
+    description: "We are looking for an ICT Officer to manage our information systems...",
+    requirements: [
+      "Bachelor's degree in Computer Science or related field",
+      "3+ years of experience in IT support",
+      "Knowledge of network administration",
+      "Experience with database management"
+    ]
+  }
+];
+
+// Sample applicant data
+const applicantData = [
+  {
+    id: 1,
+    name: "John Doe",
+    position: "Senior Researcher",
+    applied: "2023-06-20",
+    experience: "7 years",
+    education: "PhD in Economics",
+    relevantSkills: 85,
+    status: "Shortlisted",
+    interview: "Scheduled",
+    jobId: 1
+  },
+  {
+    id: 2,
+    name: "Jane Smith",
+    position: "Senior Researcher",
+    applied: "2023-06-22",
+    experience: "6 years",
+    education: "PhD in Public Policy",
+    relevantSkills: 80,
+    status: "Shortlisted",
+    interview: "Completed",
+    jobId: 1
+  },
+  {
+    id: 3,
+    name: "Robert Johnson",
+    position: "Administrative Officer",
+    applied: "2023-06-21",
+    experience: "4 years",
+    education: "Bachelor's in Business Administration",
+    relevantSkills: 75,
+    status: "Under Review",
+    interview: "Not Scheduled",
+    jobId: 2
+  },
+  {
+    id: 4,
+    name: "Emily Brown",
+    position: "Administrative Officer",
+    applied: "2023-06-25",
+    experience: "5 years",
+    education: "Master's in Public Administration",
+    relevantSkills: 90,
+    status: "Shortlisted",
+    interview: "Scheduled",
+    jobId: 2
+  },
+  {
+    id: 5,
+    name: "Michael Wilson",
+    position: "ICT Officer",
+    applied: "2023-06-19",
+    experience: "3 years",
+    education: "Bachelor's in Computer Science",
+    relevantSkills: 70,
+    status: "Under Review",
+    interview: "Not Scheduled",
+    jobId: 5
+  }
 ];
 
 const experienceData = [
@@ -48,27 +221,121 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [jobListings, setJobListings] = useState(initialJobListings);
+  const [applicants, setApplicants] = useState(applicantData);
+  const [newJobDialogOpen, setNewJobDialogOpen] = useState(false);
+  const [jobSearchQuery, setJobSearchQuery] = useState("");
+  const [jobFilterStatus, setJobFilterStatus] = useState("all");
+  const [applicantSearchQuery, setApplicantSearchQuery] = useState("");
+  const [applicantFilterStatus, setApplicantFilterStatus] = useState("all");
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [newJob, setNewJob] = useState({
+    title: "",
+    department: "",
+    location: "",
+    type: "Full-time",
+    experience: "",
+    education: "",
+    description: "",
+    requirements: "",
+    closingDate: ""
+  });
+
+  // Filter jobs based on search query and status filter
+  const filteredJobs = jobListings.filter(job => {
+    const matchesSearch = job.title.toLowerCase().includes(jobSearchQuery.toLowerCase()) || 
+                          job.department.toLowerCase().includes(jobSearchQuery.toLowerCase());
+    const matchesFilter = jobFilterStatus === "all" || job.status === jobFilterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  // Filter applicants based on search query, status filter, and selected job
+  const filteredApplicants = applicants.filter(applicant => {
+    const matchesSearch = applicant.name.toLowerCase().includes(applicantSearchQuery.toLowerCase()) || 
+                          applicant.position.toLowerCase().includes(applicantSearchQuery.toLowerCase());
+    const matchesFilter = applicantFilterStatus === "all" || applicant.status === applicantFilterStatus;
+    const matchesSelectedJob = selectedJobId === null || applicant.jobId === selectedJobId;
+    return matchesSearch && matchesFilter && matchesSelectedJob;
+  });
+
+  // Handle creating a new job
+  const handleCreateJob = () => {
+    const newJobItem = {
+      id: jobListings.length + 1,
+      title: newJob.title,
+      department: newJob.department,
+      location: newJob.location,
+      type: newJob.type,
+      experience: newJob.experience,
+      education: newJob.education,
+      status: "Open",
+      applications: 0,
+      postDate: new Date().toISOString().split('T')[0],
+      closingDate: newJob.closingDate,
+      description: newJob.description,
+      requirements: newJob.requirements.split('\n').filter(req => req.trim() !== '')
+    };
+    
+    setJobListings([...jobListings, newJobItem]);
+    setNewJobDialogOpen(false);
+    setNewJob({
+      title: "",
+      department: "",
+      location: "",
+      type: "Full-time",
+      experience: "",
+      education: "",
+      description: "",
+      requirements: "",
+      closingDate: ""
+    });
+  };
+
+  // Automatically shortlist applicants based on criteria
+  const handleAutoShortlist = (jobId: number) => {
+    // In a real application, this would use more sophisticated logic
+    setApplicants(applicants.map(applicant => {
+      if (applicant.jobId === jobId) {
+        const relevantExp = parseInt(applicant.experience.split(' ')[0], 10);
+        const hasPhD = applicant.education.includes("PhD");
+        const hasMasters = applicant.education.includes("Master's");
+        
+        // Logic to determine if applicant should be shortlisted
+        if ((relevantExp >= 5 && (hasPhD || hasMasters)) || 
+            (relevantExp >= 3 && hasPhD) || 
+            applicant.relevantSkills >= 80) {
+          return { ...applicant, status: "Shortlisted" };
+        }
+      }
+      return applicant;
+    }));
+  };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-4 px-2">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-8">
+        <TabsList className="grid w-full grid-cols-4 mb-8">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChartIcon size={16} />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="jobs" className="flex items-center gap-2">
+            <Briefcase size={16} />
+            Job Management
           </TabsTrigger>
           <TabsTrigger value="applicants" className="flex items-center gap-2">
             <Users size={16} />
             Applicants
           </TabsTrigger>
-          <TabsTrigger value="jobs" className="flex items-center gap-2">
-            <Briefcase size={16} />
-            Jobs
+          <TabsTrigger value="reports" className="flex items-center gap-2">
+            <FileText size={16} />
+            Reports
           </TabsTrigger>
         </TabsList>
 
+        {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
@@ -200,25 +467,240 @@ const Admin = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="applicants" className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Job Management Tab */}
+        <TabsContent value="jobs" className="space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Job Listings</h2>
+            <Dialog open={newJobDialogOpen} onOpenChange={setNewJobDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus size={16} />
+                  Create New Job
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Job Posting</DialogTitle>
+                  <DialogDescription>
+                    Fill in the details below to create a new job posting.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Job Title</Label>
+                      <Input 
+                        id="title" 
+                        value={newJob.title} 
+                        onChange={(e) => setNewJob({...newJob, title: e.target.value})} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department</Label>
+                      <Input 
+                        id="department" 
+                        value={newJob.department} 
+                        onChange={(e) => setNewJob({...newJob, department: e.target.value})} 
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location</Label>
+                      <Input 
+                        id="location" 
+                        value={newJob.location} 
+                        onChange={(e) => setNewJob({...newJob, location: e.target.value})} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Job Type</Label>
+                      <Select 
+                        value={newJob.type} 
+                        onValueChange={(value) => setNewJob({...newJob, type: value})}
+                      >
+                        <SelectTrigger id="type">
+                          <SelectValue placeholder="Select job type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Full-time">Full-time</SelectItem>
+                          <SelectItem value="Part-time">Part-time</SelectItem>
+                          <SelectItem value="Contract">Contract</SelectItem>
+                          <SelectItem value="Internship">Internship</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="experience">Experience Required</Label>
+                      <Input 
+                        id="experience" 
+                        placeholder="e.g. 3+ years" 
+                        value={newJob.experience} 
+                        onChange={(e) => setNewJob({...newJob, experience: e.target.value})} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="education">Education Required</Label>
+                      <Input 
+                        id="education" 
+                        placeholder="e.g. Bachelor's" 
+                        value={newJob.education} 
+                        onChange={(e) => setNewJob({...newJob, education: e.target.value})} 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="closing-date">Closing Date</Label>
+                    <Input 
+                      id="closing-date" 
+                      type="date" 
+                      value={newJob.closingDate} 
+                      onChange={(e) => setNewJob({...newJob, closingDate: e.target.value})} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Job Description</Label>
+                    <Textarea 
+                      id="description" 
+                      rows={4} 
+                      value={newJob.description} 
+                      onChange={(e) => setNewJob({...newJob, description: e.target.value})} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="requirements">
+                      Requirements (one per line)
+                    </Label>
+                    <Textarea 
+                      id="requirements" 
+                      rows={4} 
+                      placeholder="Bachelor's degree in relevant field&#10;3+ years experience&#10;Knowledge of XYZ"
+                      value={newJob.requirements} 
+                      onChange={(e) => setNewJob({...newJob, requirements: e.target.value})} 
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setNewJobDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={handleCreateJob}>Create Job</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div className="md:col-span-3 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input 
+                placeholder="Search jobs..."
+                className="pl-10"
+                value={jobSearchQuery}
+                onChange={(e) => setJobSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Select 
+                value={jobFilterStatus} 
+                onValueChange={setJobFilterStatus}
+              >
+                <SelectTrigger className="flex items-center gap-2">
+                  <Filter size={16} />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Open">Open</SelectItem>
+                  <SelectItem value="Closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job Title</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Experience</TableHead>
+                  <TableHead>Applications</TableHead>
+                  <TableHead>Closing Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredJobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">{job.title}</TableCell>
+                    <TableCell>{job.department}</TableCell>
+                    <TableCell>{job.location}</TableCell>
+                    <TableCell>{job.experience}</TableCell>
+                    <TableCell>{job.applications}</TableCell>
+                    <TableCell>{new Date(job.closingDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        job.status === 'Open' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {job.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleAutoShortlist(job.id)}
+                        >
+                          Auto Shortlist
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedJobId(job.id);
+                            setActiveTab("applicants");
+                          }}
+                        >
+                          View Applicants
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChartIcon size={18} />
-                  Applicants by Experience
-                </CardTitle>
+                <CardTitle className="text-lg">Job Posting Statistics</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={experienceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <BarChart
+                      data={[
+                        { name: "Open Jobs", value: jobListings.filter(job => job.status === "Open").length },
+                        { name: "Closed Jobs", value: jobListings.filter(job => job.status === "Closed").length },
+                        { name: "Total Applications", value: jobListings.reduce((sum, job) => sum + job.applications, 0) },
+                        { name: "Shortlisted", value: applicants.filter(app => app.status === "Shortlisted").length },
+                        { name: "Interviewed", value: applicants.filter(app => app.interview === "Completed").length },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="range" />
+                      <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip />
                       <Bar dataKey="value" fill="#8884d8">
-                        {experienceData.map((entry, index) => (
+                        {[0, 1, 2, 3, 4].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Bar>
@@ -230,224 +712,107 @@ const Admin = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Applicant Statistics</CardTitle>
+                <CardTitle className="text-lg">Applications by Department</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Application Sources</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">LinkedIn</span>
-                      <span className="text-sm font-medium">42%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bg-blue-500 h-full rounded-full" style={{ width: "42%" }}></div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Company Website</span>
-                      <span className="text-sm font-medium">28%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bg-green-500 h-full rounded-full" style={{ width: "28%" }}></div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Job Boards</span>
-                      <span className="text-sm font-medium">18%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bg-yellow-500 h-full rounded-full" style={{ width: "18%" }}></div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Referrals</span>
-                      <span className="text-sm font-medium">12%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bg-purple-500 h-full rounded-full" style={{ width: "12%" }}></div>
-                    </div>
-                  </div>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "Research and Policy", value: 24 },
+                          { name: "Administration", value: 42 },
+                          { name: "Training", value: 38 },
+                          { name: "Finance", value: 18 },
+                          { name: "ICT", value: 31 },
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={true}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {[0, 1, 2, 3, 4].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Skill Requirements</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Skill</TableHead>
-                    <TableHead>Demand</TableHead>
-                    <TableHead>Available Candidates</TableHead>
-                    <TableHead>Gap</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">React.js</TableCell>
-                    <TableCell>48</TableCell>
-                    <TableCell>32</TableCell>
-                    <TableCell className="text-red-500">-16</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Python</TableCell>
-                    <TableCell>36</TableCell>
-                    <TableCell>45</TableCell>
-                    <TableCell className="text-green-500">+9</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">UX Design</TableCell>
-                    <TableCell>24</TableCell>
-                    <TableCell>18</TableCell>
-                    <TableCell className="text-red-500">-6</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Data Analysis</TableCell>
-                    <TableCell>30</TableCell>
-                    <TableCell>28</TableCell>
-                    <TableCell className="text-red-500">-2</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Project Management</TableCell>
-                    <TableCell>22</TableCell>
-                    <TableCell>35</TableCell>
-                    <TableCell className="text-green-500">+13</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </TabsContent>
 
-        <TabsContent value="jobs" className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Open Positions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">24</div>
-                <p className="text-sm text-muted-foreground">Across 8 departments</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Average Time to Hire</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">18 days</div>
-                <p className="text-sm text-muted-foreground">-3 days from last quarter</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Cost per Hire</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">$4,250</div>
-                <p className="text-sm text-muted-foreground">+5% from last quarter</p>
-              </CardContent>
-            </Card>
+        {/* Applicants Tab */}
+        <TabsContent value="applicants" className="space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">
+              {selectedJobId 
+                ? `Applicants for ${jobListings.find(job => job.id === selectedJobId)?.title}` 
+                : "All Applicants"}
+            </h2>
+            {selectedJobId && (
+              <Button variant="outline" onClick={() => setSelectedJobId(null)}>
+                View All Applicants
+              </Button>
+            )}
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Job Posting Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { position: "Frontend Dev", views: 1200, applications: 45, qualified: 18 },
-                      { position: "UX Designer", views: 980, applications: 36, qualified: 14 },
-                      { position: "Backend Dev", views: 1100, applications: 42, qualified: 20 },
-                      { position: "Product Manager", views: 850, applications: 28, qualified: 12 },
-                      { position: "Data Analyst", views: 750, applications: 25, qualified: 10 },
-                    ]}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="position" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="views" fill="#8884d8" name="Views" />
-                    <Bar dataKey="applications" fill="#82ca9d" name="Applications" />
-                    <Bar dataKey="qualified" fill="#ffc658" name="Qualified" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div className="md:col-span-3 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input 
+                placeholder="Search applicants..."
+                className="pl-10"
+                value={applicantSearchQuery}
+                onChange={(e) => setApplicantSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Select 
+                value={applicantFilterStatus} 
+                onValueChange={setApplicantFilterStatus}
+              >
+                <SelectTrigger className="flex items-center gap-2">
+                  <Filter size={16} />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Under Review">Under Review</SelectItem>
+                  <SelectItem value="Shortlisted">Shortlisted</SelectItem>
+                  <SelectItem value="Rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Job Postings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Position</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Applications</TableHead>
-                    <TableHead>Conversion Rate</TableHead>
-                    <TableHead>Days Open</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">Senior Frontend Developer</TableCell>
-                    <TableCell>Engineering</TableCell>
-                    <TableCell>68</TableCell>
-                    <TableCell>5.8%</TableCell>
-                    <TableCell>12</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Product Manager</TableCell>
-                    <TableCell>Product</TableCell>
-                    <TableCell>42</TableCell>
-                    <TableCell>4.9%</TableCell>
-                    <TableCell>18</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Data Scientist</TableCell>
-                    <TableCell>Analytics</TableCell>
-                    <TableCell>36</TableCell>
-                    <TableCell>4.2%</TableCell>
-                    <TableCell>21</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">UX/UI Designer</TableCell>
-                    <TableCell>Design</TableCell>
-                    <TableCell>51</TableCell>
-                    <TableCell>6.1%</TableCell>
-                    <TableCell>15</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">DevOps Engineer</TableCell>
-                    <TableCell>Infrastructure</TableCell>
-                    <TableCell>28</TableCell>
-                    <TableCell>3.8%</TableCell>
-                    <TableCell>24</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-export default Admin;
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Applied On</TableHead>
+                  <TableHead>Experience</TableHead>
+                  <TableHead>Education</TableHead>
+                  <TableHead>Match Score</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredApplicants.map((applicant) => (
+                  <TableRow key={applicant.id}>
+                    <TableCell className="font-medium">{applicant.name}</TableCell>
+                    <TableCell>{applicant.position}</TableCell>
+                    <TableCell>{new Date(applicant.applied).toLocaleDateString()}</TableCell>
+                    <TableCell>{applicant.experience}</TableCell>
+                    <TableCell>{applicant.education}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <div className="w-full bg-gray-200 rounded-full h-2.
