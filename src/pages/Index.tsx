@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Our ATS System</h1>
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-gray-50">
+      <div className="text-center mb-8 max-w-3xl">
+        <h1 className="text-4xl font-bold mb-4">Welcome to Kenya School of Government</h1>
         <p className="text-xl text-gray-600 mb-8">Find your dream job and apply with ease</p>
         <div className="flex gap-4 justify-center">
           <Link to="/apply">
