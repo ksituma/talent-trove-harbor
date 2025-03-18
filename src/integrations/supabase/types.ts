@@ -9,7 +9,264 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      education: {
+        Row: {
+          certificate_url: string | null
+          created_at: string | null
+          education_level: string
+          field_of_study: string | null
+          graduation_date: string | null
+          id: string
+          institution: string
+          user_id: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          created_at?: string | null
+          education_level: string
+          field_of_study?: string | null
+          graduation_date?: string | null
+          id?: string
+          institution: string
+          user_id?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          created_at?: string | null
+          education_level?: string
+          field_of_study?: string | null
+          graduation_date?: string | null
+          id?: string
+          institution?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experience: {
+        Row: {
+          created_at: string | null
+          designation: string
+          end_date: string | null
+          id: string
+          job_group: string | null
+          organization: string
+          start_date: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          designation: string
+          end_date?: string | null
+          id?: string
+          job_group?: string | null
+          organization: string
+          start_date: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          designation?: string
+          end_date?: string | null
+          id?: string
+          job_group?: string | null
+          organization?: string
+          start_date?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_bodies: {
+        Row: {
+          body_name: string
+          certificate_url: string | null
+          created_at: string | null
+          id: string
+          membership_date: string
+          user_id: string | null
+        }
+        Insert: {
+          body_name: string
+          certificate_url?: string | null
+          created_at?: string | null
+          id?: string
+          membership_date: string
+          user_id?: string | null
+        }
+        Update: {
+          body_name?: string
+          certificate_url?: string | null
+          created_at?: string | null
+          id?: string
+          membership_date?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_bodies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      publications: {
+        Row: {
+          created_at: string | null
+          id: string
+          publication_date: string
+          title: string
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          publication_date: string
+          title: string
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          publication_date?: string
+          title?: string
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "publications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referees: {
+        Row: {
+          created_at: string | null
+          designation: string
+          email: string
+          id: string
+          mobile: string
+          name: string
+          organization: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          designation: string
+          email: string
+          id?: string
+          mobile: string
+          name: string
+          organization: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          designation?: string
+          email?: string
+          id?: string
+          mobile?: string
+          name?: string
+          organization?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      short_courses: {
+        Row: {
+          certificate_url: string | null
+          completion_date: string
+          course_name: string
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          completion_date: string
+          course_name: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          completion_date?: string
+          course_name?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "short_courses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
