@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import JobListings from "./pages/JobListings";
+import JobDetails from "./pages/JobDetails";
 import ApplicationForm from "./pages/ApplicationForm";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
@@ -32,8 +34,10 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Index />} />
+    <Route path="/jobs" element={<JobListings />} />
+    <Route path="/jobs/:jobId" element={<JobDetails />} />
     <Route path="/auth" element={<Auth />} />
-    <Route path="/apply" element={
+    <Route path="/apply/:jobId" element={
       <PrivateRoute>
         <ApplicationForm />
       </PrivateRoute>

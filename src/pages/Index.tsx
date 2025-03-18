@@ -9,8 +9,8 @@ const Index = () => {
         <h1 className="text-4xl font-bold mb-4">Welcome to Kenya School of Government</h1>
         <p className="text-xl text-gray-600 mb-8">Find your dream job and apply with ease</p>
         <div className="flex gap-4 justify-center">
-          <Link to="/apply">
-            <Button size="lg">Apply Now</Button>
+          <Link to="/jobs">
+            <Button size="lg">View Jobs</Button>
           </Link>
           <Link to="/admin">
             <Button size="lg" variant="outline">Admin Dashboard</Button>
