@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Upload } from "lucide-react";
+import { CalendarIcon, Plus, Upload, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ShortCourse {
@@ -24,6 +24,11 @@ const ShortCoursesSection = () => {
     setCourses([...courses, { id: newId, name: "" }]);
   };
 
+  const removeCourse = (idToRemove: number) => {
+    if (courses.length <= 1) return;
+    setCourses(courses.filter(course => course.id !== idToRemove));
+  };
+
   const handleCourseChange = (id: number, field: keyof ShortCourse, value: any) => {
     setCourses(prevCourses => prevCourses.map(course => 
       course.id === id ? { ...course, [field]: value } : course
@@ -33,8 +38,22 @@ const ShortCoursesSection = () => {
   return (
     <div className="space-y-8">
       {courses.map((course, index) => (
-        <div key={course.id} className="space-y-4">
-          <h3 className="text-lg font-medium">Short Course #{index + 1}</h3>
+        <div key={course.id} className="space-y-4 border-b pb-8 last:border-b-0">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Short Course #{index + 1}</h3>
+            {courses.length > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={() => removeCourse(course.id)}
+              >
+                <Trash2 size={16} className="mr-2" />
+                Remove
+              </Button>
+            )}
+          </div>
           
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">

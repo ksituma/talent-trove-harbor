@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Upload } from "lucide-react";
+import { CalendarIcon, Plus, Upload, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const educationLevelOptions = [
@@ -30,6 +29,16 @@ const EducationSection = () => {
     setEducations([...educations, { id: newId }]);
   };
 
+  const removeEducationEntry = (idToRemove: number) => {
+    if (educations.length <= 1) return;
+    setEducations(educations.filter(edu => edu.id !== idToRemove));
+    setGraduationDates(prev => {
+      const newDates = { ...prev };
+      delete newDates[idToRemove];
+      return newDates;
+    });
+  };
+
   const handleGraduationDateChange = (date: Date | undefined, id: number) => {
     setGraduationDates(prev => ({
       ...prev,
@@ -41,8 +50,22 @@ const EducationSection = () => {
     <div className="space-y-8">
       {educations.map((education, index) => (
         <div key={education.id} className="space-y-6 border-b pb-8 last:border-b-0">
-          <h2 className="text-lg font-semibold">Education Entry #{index + 1}</h2>
-          
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Education Entry #{index + 1}</h2>
+            {educations.length > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={() => removeEducationEntry(education.id)}
+              >
+                <Trash2 size={16} className="mr-2" />
+                Remove
+              </Button>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor={`education-level-${education.id}`}>Education Level <span className="text-red-500">*</span></Label>
