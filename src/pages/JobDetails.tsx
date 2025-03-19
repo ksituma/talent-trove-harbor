@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { JobType } from "@/types/supabase";
 
 // Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
@@ -18,23 +19,27 @@ const JobDetails = () => {
 
   const { data: job, isLoading } = useQuery({
     queryKey: ['job', jobId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .eq('id', jobId)
-        .single();
+    queryFn: async (): Promise<JobType> => {
+      try {
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('id', jobId)
+          .single();
+          
+        if (error) {
+          throw error;
+        }
         
-      if (error) {
+        return data;
+      } catch (error) {
         // If there's an error, use sample data as fallback
         const fallbackJob = initialJobListings.find(j => j.id === Number(jobId));
         if (!fallbackJob) {
           throw new Error("Job not found");
         }
-        return fallbackJob;
+        return fallbackJob as unknown as JobType;
       }
-      
-      return data;
     }
   });
 
@@ -90,7 +95,7 @@ const JobDetails = () => {
             </div>
             <div className="space-y-1">
               <p className="font-medium">Closing Date</p>
-              <p>{new Date(job.closingDate).toLocaleDateString()}</p>
+              <p>{new Date(job.closing_date).toLocaleDateString()}</p>
             </div>
           </div>
 

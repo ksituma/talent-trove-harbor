@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { JobType, ApplicationType } from "@/types/supabase";
+import { FormSectionProps } from "@/components/forms/IFormSections";
 
 // Import components directly
 import PersonalSection from "@/components/forms/PersonalSection";
@@ -17,6 +19,9 @@ import ProfessionalBodiesSection from "@/components/forms/ProfessionalBodiesSect
 import PublicationsSection from "@/components/forms/PublicationsSection";
 import RefereesSection from "@/components/forms/RefereesSection";
 
+// Import sample job data as fallback
+import { initialJobListings } from "@/data/SampleJobs";
+
 const ApplicationForm = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const { toast } = useToast();
@@ -24,15 +29,32 @@ const ApplicationForm = () => {
 
   const { data: job, isLoading } = useQuery({
     queryKey: ['job', jobId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .eq('id', jobId)
-        .single();
+    queryFn: async (): Promise<JobType> => {
+      try {
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('id', jobId)
+          .single();
+          
+        if (error) {
+          // If there's an error, use sample data as fallback
+          const fallbackJob = initialJobListings.find(j => j.id === Number(jobId));
+          if (!fallbackJob) {
+            throw new Error("Job not found");
+          }
+          return fallbackJob as unknown as JobType;
+        }
         
-      if (error) throw error;
-      return data;
+        return data;
+      } catch (error) {
+        console.error("Error fetching job:", error);
+        const fallbackJob = initialJobListings.find(j => j.id === Number(jobId));
+        if (!fallbackJob) {
+          throw new Error("Job not found");
+        }
+        return fallbackJob as unknown as JobType;
+      }
     }
   });
 

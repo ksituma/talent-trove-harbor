@@ -8,21 +8,27 @@ import { useToast } from "@/components/ui/use-toast";
 import { Job } from "@/models/JobTypes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { JobType } from "@/types/supabase";
 
 // Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
 
-const fetchJobs = async () => {
-  const { data, error } = await supabase
-    .from('jobs')
-    .select('*')
-    .eq('status', 'Open');
-  
-  if (error) {
-    throw error;
+const fetchJobs = async (): Promise<JobType[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('status', 'Open');
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return initialJobListings as unknown as JobType[];
   }
-  
-  return data || initialJobListings;
 };
 
 const JobListings = () => {
@@ -32,16 +38,13 @@ const JobListings = () => {
   const { data: jobs = initialJobListings, isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
-    // Handle errors gracefully
-    onSettled: (data, error) => {
-      if (error) {
-        console.error("Error fetching jobs:", error);
-        toast({
-          variant: "destructive",
-          title: "Error fetching jobs",
-          description: "Using sample data instead.",
-        });
-      }
+    onError: (error) => {
+      console.error("Error fetching jobs:", error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching jobs",
+        description: "Using sample data instead.",
+      });
     }
   });
 
@@ -74,7 +77,7 @@ const JobListings = () => {
                 <p><span className="font-medium">Type:</span> {job.type}</p>
                 <p><span className="font-medium">Experience:</span> {job.experience}</p>
                 <p><span className="font-medium">Education:</span> {job.education}</p>
-                <p><span className="font-medium">Closing Date:</span> {new Date(job.closingDate).toLocaleDateString()}</p>
+                <p><span className="font-medium">Closing Date:</span> {new Date(job.closing_date).toLocaleDateString()}</p>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
