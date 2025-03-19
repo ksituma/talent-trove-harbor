@@ -1,139 +1,137 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JobType } from "@/types/supabase";
 
-// Import sample job data as fallback
-import { initialJobListings } from "@/data/SampleJobs";
-
 const JobDetails = () => {
-  const { jobId } = useParams<{ jobId: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: job, isLoading } = useQuery({
-    queryKey: ['job', jobId],
-    queryFn: async (): Promise<JobType> => {
-      try {
-        const { data, error } = await supabase
-          .from('jobs')
-          .select('*')
-          .eq('id', jobId)
-          .single();
-          
-        if (error) {
-          throw error;
-        }
-        
-        return data;
-      } catch (error) {
-        // If there's an error, use sample data as fallback
-        const fallbackJob = initialJobListings.find(j => j.id === Number(jobId));
-        if (!fallbackJob) {
-          throw new Error("Job not found");
-        }
-        return fallbackJob as unknown as JobType;
-      }
+  // Fetch job details
+  const { data: job, isLoading, error } = useQuery({
+    queryKey: ["job", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      return data as JobType;
     }
   });
 
   const handleApply = () => {
-    navigate(`/apply/${jobId}`);
+    if (!job) return;
+    navigate(`/apply/${job.id}`);
   };
 
   if (isLoading) {
-    return <div className="container py-8 mx-auto">Loading...</div>;
+    return <div className="container py-8 mx-auto">Loading job details...</div>;
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <div className="container py-8 mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Job not found</h1>
-        <p>The job you're looking for doesn't exist or has been removed.</p>
-        <Button onClick={() => navigate("/jobs")} className="mt-4">
-          Back to Jobs
-        </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-500">Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Unable to load job details. Please try again later.</p>
+            <Button 
+              className="mt-4" 
+              onClick={() => navigate("/jobs")}
+            >
+              Back to Job Listings
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="container py-8 mx-auto max-w-4xl">
-      <Card>
-        <CardHeader>
+    <div className="container py-8 mx-auto">
+      <Card className="mb-6">
+        <CardHeader className="pb-4">
           <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-3xl">{job.title}</CardTitle>
-              <CardDescription className="text-lg mt-2">
-                {job.department} • {job.location}
-              </CardDescription>
-            </div>
-            <Badge variant={job.status === "Open" ? "default" : "secondary"} className="text-sm">
+            <CardTitle className="text-2xl">{job.title}</CardTitle>
+            <Badge variant={job.status === "Open" ? "default" : "secondary"}>
               {job.status}
             </Badge>
           </div>
+          <p className="text-gray-500">{job.department} • {job.location}</p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-1">
-              <p className="font-medium">Job Type</p>
+        <CardContent className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h3 className="font-semibold">Job Type</h3>
               <p>{job.type}</p>
             </div>
-            <div className="space-y-1">
-              <p className="font-medium">Experience Required</p>
+            
+            <div className="space-y-3">
+              <h3 className="font-semibold">Experience</h3>
               <p>{job.experience}</p>
             </div>
-            <div className="space-y-1">
-              <p className="font-medium">Education Required</p>
+            
+            <div className="space-y-3">
+              <h3 className="font-semibold">Education</h3>
               <p>{job.education}</p>
             </div>
-            <div className="space-y-1">
-              <p className="font-medium">Closing Date</p>
+            
+            <div className="space-y-3">
+              <h3 className="font-semibold">Closing Date</h3>
               <p>{new Date(job.closing_date).toLocaleDateString()}</p>
             </div>
           </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-medium">Job Description</h3>
-            <p className="text-gray-700">{job.description}</p>
+          
+          <div className="space-y-3">
+            <h3 className="font-semibold">Job Description</h3>
+            <p className="whitespace-pre-wrap">{job.description}</p>
           </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-medium">Requirements</h3>
-            <ul className="list-disc pl-5 space-y-1 text-gray-700">
-              {job.requirements.map((req, index) => (
-                <li key={index}>{req}</li>
+          
+          <div className="space-y-3">
+            <h3 className="font-semibold">Requirements</h3>
+            <ul className="list-disc pl-6 space-y-1">
+              {job.requirements.map((requirement, index) => (
+                <li key={index}>{requirement}</li>
               ))}
             </ul>
           </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-medium">Responsibilities</h3>
-            <ul className="list-disc pl-5 space-y-1 text-gray-700">
-              {job.responsibilities.map((resp, index) => (
-                <li key={index}>{resp}</li>
+          
+          <div className="space-y-3">
+            <h3 className="font-semibold">Responsibilities</h3>
+            <ul className="list-disc pl-6 space-y-1">
+              {job.responsibilities.map((responsibility, index) => (
+                <li key={index}>{responsibility}</li>
               ))}
             </ul>
-          </div>
-
-          <div className="flex justify-between items-center pt-4 border-t mt-6">
-            <Button variant="outline" onClick={() => navigate("/jobs")}>
-              Back to Jobs
-            </Button>
-            <Button 
-              onClick={handleApply}
-              disabled={job.status !== "Open"}
-            >
-              Apply Now
-            </Button>
           </div>
         </CardContent>
+        <CardFooter className="border-t pt-6">
+          <Button
+            onClick={() => navigate("/jobs")}
+            variant="outline"
+            className="mr-2"
+          >
+            Back to Listings
+          </Button>
+          <Button
+            onClick={handleApply}
+            disabled={job.status !== "Open"}
+          >
+            Apply Now
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

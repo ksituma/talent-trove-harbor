@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      applications: {
+        Row: {
+          applicant_data: Json
+          created_at: string | null
+          id: string
+          job_id: number
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          applicant_data: Json
+          created_at?: string | null
+          id?: string
+          job_id: number
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          applicant_data?: Json
+          created_at?: string | null
+          id?: string
+          job_id?: number
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       education: {
         Row: {
           certificate_url: string | null
@@ -90,6 +125,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      jobs: {
+        Row: {
+          closing_date: string
+          created_at: string | null
+          department: string
+          description: string
+          education: string
+          experience: string
+          id: number
+          location: string
+          requirements: string[]
+          responsibilities: string[]
+          salary_range: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          closing_date: string
+          created_at?: string | null
+          department: string
+          description: string
+          education: string
+          experience: string
+          id?: number
+          location: string
+          requirements: string[]
+          responsibilities: string[]
+          salary_range?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          closing_date?: string
+          created_at?: string | null
+          department?: string
+          description?: string
+          education?: string
+          experience?: string
+          id?: number
+          location?: string
+          requirements?: string[]
+          responsibilities?: string[]
+          salary_range?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       professional_bodies: {
         Row: {
