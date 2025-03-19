@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -37,18 +36,19 @@ const JobListings = () => {
   const { data: jobs = initialJobListings, isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
-    onError: (error) => {
-      console.error("Error fetching jobs:", error);
-      toast({
-        variant: "destructive",
-        title: "Error fetching jobs",
-        description: "Using sample data instead.",
-      });
+    meta: {
+      onError: (error: any) => {
+        console.error("Error fetching jobs:", error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching jobs",
+          description: "Using sample data instead.",
+        });
+      }
     }
   });
 
   const handleApply = (jobId: number) => {
-    // No login required - just navigate to application form
     navigate(`/apply/${jobId}`);
   };
 

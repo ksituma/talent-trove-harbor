@@ -1,69 +1,30 @@
 
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChartIcon, PieChartIcon, Users, Briefcase, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { BarChartIcon, PieChartIcon, Users, Briefcase, FileText, PlusCircle } from "lucide-react";
 import OverviewTab from "@/components/admin/OverviewTab";
 import JobsTab from "@/components/admin/JobsTab";
 import ApplicantsTab from "@/components/admin/ApplicantsTab";
 import ReportsTab from "@/components/admin/ReportsTab";
-import { Job } from "@/models/JobTypes";
+import JobForm from "@/components/admin/JobForm";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
-// Sample initial job listings
-const initialJobListings: Job[] = [
-  {
-    id: 1,
-    title: "Senior Researcher",
-    department: "Research and Policy",
-    location: "Nairobi",
-    type: "Full-time",
-    experience: "5+ years",
-    education: "PhD",
-    status: "Open",
-    applications: 24,
-    postDate: "2023-06-15",
-    closingDate: "2023-07-15",
-    description: "We are looking for a Senior Researcher to join our dynamic team...",
-    requirements: [
-      "PhD in relevant field",
-      "5+ years of research experience",
-      "Strong publication record",
-      "Experience in policy analysis"
-    ]
-  },
-  {
-    id: 2,
-    title: "Administrative Officer",
-    department: "Administration",
-    location: "Mombasa",
-    type: "Full-time",
-    experience: "3+ years",
-    education: "Bachelor's",
-    status: "Open",
-    applications: 42,
-    postDate: "2023-06-20",
-    closingDate: "2023-07-20",
-    description: "We are seeking an Administrative Officer to support our operations...",
-    requirements: [
-      "Bachelor's degree in Business Administration or related field",
-      "3+ years of administrative experience",
-      "Proficiency in MS Office",
-      "Strong organizational skills"
-    ]
-  },
-  // ... abbreviated for brevity, the full job listings are in the JobsTab component
-];
+// Sample initial job listings (moved to JobsTab component)
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [applicants, setApplicants] = useState([]);
+  const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Handle automatic shortlisting
   const handleAutoShortlist = (jobId: number) => {
     // In a real application, this would contain more sophisticated logic
-    // and would update the applicants state with newly shortlisted candidates
     console.log(`Auto-shortlisting for job ${jobId}`);
-    // Implementation would be similar to the original Admin.tsx file
   };
 
   // Handle selecting a job to view its applicants
@@ -77,9 +38,39 @@ const Admin = () => {
     setSelectedJobId(null);
   };
 
+  // Handle job form success
+  const handleJobFormSuccess = () => {
+    setIsJobDialogOpen(false);
+    toast({
+      title: "Success",
+      description: "Job posting has been saved successfully."
+    });
+    // After success, ensure "jobs" tab is active to show the updated list
+    setActiveTab("jobs");
+  };
+
   return (
     <div className="container mx-auto py-4 px-2">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <Dialog open={isJobDialogOpen} onOpenChange={setIsJobDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <PlusCircle className="h-4 w-4" />
+              Post New Job
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Job Posting</DialogTitle>
+              <DialogDescription>
+                Fill out the form below to create a new job posting.
+              </DialogDescription>
+            </DialogHeader>
+            <JobForm onSuccess={handleJobFormSuccess} />
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-8">
@@ -110,7 +101,8 @@ const Admin = () => {
         <TabsContent value="jobs">
           <JobsTab 
             onSelectJob={handleSelectJob} 
-            onAutoShortlist={handleAutoShortlist} 
+            onAutoShortlist={handleAutoShortlist}
+            onCreateJob={() => setIsJobDialogOpen(true)}
           />
         </TabsContent>
 
@@ -119,7 +111,6 @@ const Admin = () => {
           <ApplicantsTab 
             selectedJobId={selectedJobId} 
             onClearJobSelection={handleClearJobSelection}
-            jobs={initialJobListings}
           />
         </TabsContent>
         

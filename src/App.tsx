@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,11 @@ const App = () => (
                 <Route path="/jobs/:jobId" element={<JobDetails />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/apply/:jobId" element={<ApplicationForm />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

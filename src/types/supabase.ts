@@ -29,3 +29,10 @@ export interface ApplicationType {
 export interface FormSectionProps {
   onComplete: (data: any) => void;
 }
+
+// User type for authentication
+export interface UserType {
+  id: string;
+  email: string;
+  role: string;
+}

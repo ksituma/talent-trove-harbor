@@ -7,8 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { JobType } from "@/types/supabase";
-import { FormSectionProps } from "@/components/forms/IFormSections";
+import { JobType, FormSectionProps } from "@/types/supabase";
 
 // Import form sections
 import PersonalSection from "@/components/forms/PersonalSection";
@@ -26,16 +25,19 @@ const ApplicationForm = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Safely parse jobId to number
+  const parsedJobId = jobId ? parseInt(jobId, 10) : 0;
 
   // Fetch job details
   const { data: job, isLoading: jobLoading, error: jobError } = useQuery({
-    queryKey: ["job", jobId],
+    queryKey: ["job", parsedJobId],
     queryFn: async () => {
-      if (!jobId) return null;
+      if (!parsedJobId) return null;
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
-        .eq("id", jobId)
+        .eq("id", parsedJobId)
         .single();
 
       if (error) throw error;
@@ -76,7 +78,7 @@ const ApplicationForm = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!jobId) return;
+    if (!parsedJobId) return;
     
     setIsSubmitting(true);
     
@@ -85,7 +87,7 @@ const ApplicationForm = () => {
       const { data, error } = await supabase
         .from("applications")
         .insert({
-          job_id: parseInt(jobId),
+          job_id: parsedJobId,
           applicant_data: formData,
           status: "Pending"
         });
