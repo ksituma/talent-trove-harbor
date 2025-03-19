@@ -1,164 +1,175 @@
 
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import PersonalSection from "@/components/forms/PersonalSection";
-import EducationSection from "@/components/forms/EducationSection";
-import ExperienceSection from "@/components/forms/ExperienceSection";
-import ShortCoursesSection from "@/components/forms/ShortCoursesSection";
-import ProfessionalBodiesSection from "@/components/forms/ProfessionalBodiesSection";
-import PublicationsSection from "@/components/forms/PublicationsSection";
-import RefereesSection from "@/components/forms/RefereesSection";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import { initialJobListings } from "@/data/SampleJobs";
+import { useAuth } from "@/contexts/AuthContext";
+import { PersonalSection } from "@/components/forms/PersonalSection";
+import { EducationSection } from "@/components/forms/EducationSection";
+import { ExperienceSection } from "@/components/forms/ExperienceSection";
+import { ShortCoursesSection } from "@/components/forms/ShortCoursesSection";
+import { ProfessionalBodiesSection } from "@/components/forms/ProfessionalBodiesSection";
+import { PublicationsSection } from "@/components/forms/PublicationsSection";
+import { RefereesSection } from "@/components/forms/RefereesSection";
+import { supabase } from "@/integrations/supabase/client";
 
 const ApplicationForm = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const [job, setJob] = useState(null);
-  const [activeTab, setActiveTab] = useState("personal");
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Make sure jobId is provided and user is authenticated
-    if (!jobId) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No job specified. Please select a job to apply for.",
-      });
-      navigate("/jobs");
-      return;
+  // Find the job from our sample data
+  const job = initialJobListings.find(j => j.id.toString() === jobId);
+
+  const [activeTab, setActiveTab] = useState("personal");
+  const [completedTabs, setCompletedTabs] = useState<string[]>([]);
+
+  // Check if a tab is completed
+  const isTabCompleted = (tabId: string) => completedTabs.includes(tabId);
+
+  // Mark a tab as completed
+  const markTabAsCompleted = (tabId: string) => {
+    if (!completedTabs.includes(tabId)) {
+      setCompletedTabs([...completedTabs, tabId]);
     }
-
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication required",
-        description: "Please sign in to apply for jobs.",
-      });
-      navigate("/auth");
-      return;
-    }
-
-    // Find the job from our sample data
-    // In a real implementation, we would fetch this from Supabase
-    const selectedJob = initialJobListings.find(j => j.id === Number(jobId));
-    if (!selectedJob) {
-      toast({
-        variant: "destructive",
-        title: "Job not found",
-        description: "The job you're trying to apply for doesn't exist.",
-      });
-      navigate("/jobs");
-      return;
-    }
-
-    // In a real implementation, we would check if the user has already applied
-    // For this job, and redirect if they have
-    // const checkApplication = async () => {
-    //   const { data, error } = await supabase
-    //     .from('applications')
-    //     .select('*')
-    //     .eq('user_id', user.id)
-    //     .eq('job_id', jobId)
-    //     .single();
-    //     
-    //   if (data) {
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Already applied",
-    //       description: "You have already applied for this position.",
-    //     });
-    //     navigate('/jobs');
-    //   }
-    // };
-    // 
-    // checkApplication();
-
-    setJob(selectedJob);
-  }, [jobId, user, navigate, toast]);
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
   };
 
-  const navigateToNextTab = () => {
-    const tabs = ["personal", "education", "experience", "courses", "bodies", "publications", "referees"];
+  // Navigate to the next tab
+  const goToNextTab = () => {
+    const tabs = ["personal", "education", "experience", "shortCourses", "professionalBodies", "publications", "referees", "review"];
     const currentIndex = tabs.indexOf(activeTab);
+    
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1]);
     }
   };
 
+  // Handle when a section is completed
+  const handleSectionComplete = (tabId: string) => {
+    markTabAsCompleted(tabId);
+    goToNextTab();
+  };
+
+  // Handle final submission
+  const handleSubmit = async () => {
+    try {
+      // In a real implementation, we would submit the application to Supabase
+      // For now, we'll just simulate a successful submission
+      toast({
+        title: "Application Submitted",
+        description: "Your application has been successfully submitted.",
+      });
+      
+      // Redirect to the jobs page after submission
+      navigate("/jobs");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error submitting application",
+        description: "There was an error submitting your application. Please try again.",
+      });
+    }
+  };
+
+  // If job is not found
   if (!job) {
-    return <div className="container py-8 mx-auto max-w-5xl">Loading application form...</div>;
+    return (
+      <div className="container py-8">
+        <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
+        <p>The job you're looking for doesn't exist or has been removed.</p>
+        <Button onClick={() => navigate("/jobs")} className="mt-4">Back to Jobs</Button>
+      </div>
+    );
   }
 
   return (
-    <div className="container py-8 mx-auto max-w-5xl">
-      <div className="p-6 bg-white rounded-lg shadow-sm border">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Job Application Form</h1>
-          <p className="text-gray-500">
-            You are applying for: <span className="font-medium text-gray-700">{job.title}</span>
-          </p>
-          <p className="text-gray-500 mt-1">
-            Please fill out all required fields to submit your application.
-          </p>
-        </div>
+    <div className="container py-8">
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Application for: {job.title}</CardTitle>
+          <CardDescription>
+            Complete all sections of this application form. Your progress will be saved automatically.
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-7 mb-8">
-            <TabsTrigger value="personal">Personal</TabsTrigger>
-            <TabsTrigger value="education">Education</TabsTrigger>
-            <TabsTrigger value="experience">Experience</TabsTrigger>
-            <TabsTrigger value="courses">Short Courses</TabsTrigger>
-            <TabsTrigger value="bodies">Professional Bodies</TabsTrigger>
-            <TabsTrigger value="publications">Publications</TabsTrigger>
-            <TabsTrigger value="referees">Referees</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 mb-6">
+          <TabsTrigger value="personal" className={isTabCompleted("personal") ? "bg-green-100" : ""}>
+            Personal
+          </TabsTrigger>
+          <TabsTrigger value="education" className={isTabCompleted("education") ? "bg-green-100" : ""}>
+            Education
+          </TabsTrigger>
+          <TabsTrigger value="experience" className={isTabCompleted("experience") ? "bg-green-100" : ""}>
+            Experience
+          </TabsTrigger>
+          <TabsTrigger value="shortCourses" className={isTabCompleted("shortCourses") ? "bg-green-100" : ""}>
+            Courses
+          </TabsTrigger>
+          <TabsTrigger value="professionalBodies" className={isTabCompleted("professionalBodies") ? "bg-green-100" : ""}>
+            Professional
+          </TabsTrigger>
+          <TabsTrigger value="publications" className={isTabCompleted("publications") ? "bg-green-100" : ""}>
+            Publications
+          </TabsTrigger>
+          <TabsTrigger value="referees" className={isTabCompleted("referees") ? "bg-green-100" : ""}>
+            Referees
+          </TabsTrigger>
+          <TabsTrigger value="review" className={isTabCompleted("review") ? "bg-green-100" : ""}>
+            Review
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="personal">
-            <PersonalSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="personal">
+          <PersonalSection onComplete={() => handleSectionComplete("personal")} />
+        </TabsContent>
 
-          <TabsContent value="education">
-            <EducationSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="education">
+          <EducationSection onComplete={() => handleSectionComplete("education")} />
+        </TabsContent>
 
-          <TabsContent value="experience">
-            <ExperienceSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="experience">
+          <ExperienceSection onComplete={() => handleSectionComplete("experience")} />
+        </TabsContent>
 
-          <TabsContent value="courses">
-            <ShortCoursesSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="shortCourses">
+          <ShortCoursesSection onComplete={() => handleSectionComplete("shortCourses")} />
+        </TabsContent>
 
-          <TabsContent value="bodies">
-            <ProfessionalBodiesSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="professionalBodies">
+          <ProfessionalBodiesSection onComplete={() => handleSectionComplete("professionalBodies")} />
+        </TabsContent>
 
-          <TabsContent value="publications">
-            <PublicationsSection onComplete={navigateToNextTab} />
-          </TabsContent>
+        <TabsContent value="publications">
+          <PublicationsSection onComplete={() => handleSectionComplete("publications")} />
+        </TabsContent>
 
-          <TabsContent value="referees">
-            <RefereesSection 
-              onComplete={() => {
-                toast({
-                  title: "Application Submitted",
-                  description: "Your application has been submitted successfully!",
-                });
-                navigate("/jobs");
-              }} 
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
+        <TabsContent value="referees">
+          <RefereesSection onComplete={() => handleSectionComplete("referees")} />
+        </TabsContent>
+
+        <TabsContent value="review">
+          <Card>
+            <CardHeader>
+              <CardTitle>Review Your Application</CardTitle>
+              <CardDescription>
+                Please review all information before submitting your application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                By submitting this application, you confirm that all information provided is accurate and complete.
+              </p>
+              <Button onClick={handleSubmit}>Submit Application</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -8,64 +8,62 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Job } from "@/models/JobTypes";
+import { useQuery } from "@tanstack/react-query";
 
-// Import sample job data (we'll replace this with Supabase data later)
+// Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
 
+const fetchJobs = async () => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('status', 'Open');
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data || initialJobListings;
+};
+
+const fetchUserApplications = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('applications')
+    .select('job_id')
+    .eq('user_id', userId);
+    
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data?.map(app => app.job_id) || [];
+};
+
 const JobListings = () => {
-  const [jobs, setJobs] = useState<Job[]>(initialJobListings);
-  const [userApplications, setUserApplications] = useState<number[]>([]);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // In a real implementation, we would fetch jobs from Supabase
-  // useEffect(() => {
-  //   const fetchJobs = async () => {
-  //     const { data, error } = await supabase
-  //       .from('jobs')
-  //       .select('*')
-  //       .eq('status', 'Open');
-  //     
-  //     if (error) {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error fetching jobs",
-  //         description: error.message,
-  //       });
-  //       return;
-  //     }
-  //     
-  //     setJobs(data);
-  //   };
-  //   
-  //   fetchJobs();
-  // }, [toast]);
+  const { data: jobs = initialJobListings, isLoading: jobsLoading, error: jobsError } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: fetchJobs,
+    // On error, fall back to sample data
+    onError: (error: Error) => {
+      console.error("Error fetching jobs:", error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching jobs",
+        description: "Using sample data instead.",
+      });
+      return initialJobListings;
+    }
+  });
 
-  // In a real implementation, we would check user applications
-  // useEffect(() => {
-  //   if (user) {
-  //     const fetchUserApplications = async () => {
-  //       const { data, error } = await supabase
-  //         .from('applications')
-  //         .select('job_id')
-  //         .eq('user_id', user.id);
-  //         
-  //       if (error) {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error fetching applications",
-  //           description: error.message,
-  //         });
-  //         return;
-  //       }
-  //       
-  //       setUserApplications(data.map(app => app.job_id));
-  //     };
-  //     
-  //     fetchUserApplications();
-  //   }
-  // }, [user, toast]);
+  const { data: userApplications = [], isLoading: applicationsLoading } = useQuery({
+    queryKey: ['applications', user?.id],
+    queryFn: () => user ? fetchUserApplications(user.id) : Promise.resolve([]),
+    enabled: !!user,
+  });
 
   const handleApply = (jobId: number) => {
     if (!user) {
@@ -90,6 +88,10 @@ const JobListings = () => {
     // Navigate to application form with job ID
     navigate(`/apply/${jobId}`);
   };
+
+  if (jobsLoading) {
+    return <div className="container py-8 mx-auto">Loading jobs...</div>;
+  }
 
   return (
     <div className="container py-8 mx-auto">
