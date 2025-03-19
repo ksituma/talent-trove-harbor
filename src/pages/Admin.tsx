@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,8 +11,9 @@ import ReportsTab from "@/components/admin/ReportsTab";
 import JobForm from "@/components/admin/JobForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-
-// Sample initial job listings (moved to JobsTab component)
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { JobType } from "@/types/supabase";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -20,6 +21,19 @@ const Admin = () => {
   const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Fetch jobs for ApplicantsTab
+  const { data: jobs = [] } = useQuery({
+    queryKey: ["jobs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("id, title");
+      
+      if (error) throw error;
+      return data as { id: number; title: string }[];
+    }
+  });
 
   // Handle automatic shortlisting
   const handleAutoShortlist = (jobId: number) => {
@@ -102,7 +116,6 @@ const Admin = () => {
           <JobsTab 
             onSelectJob={handleSelectJob} 
             onAutoShortlist={handleAutoShortlist}
-            onCreateJob={() => setIsJobDialogOpen(true)}
           />
         </TabsContent>
 
@@ -111,6 +124,7 @@ const Admin = () => {
           <ApplicantsTab 
             selectedJobId={selectedJobId} 
             onClearJobSelection={handleClearJobSelection}
+            jobs={jobs}
           />
         </TabsContent>
         

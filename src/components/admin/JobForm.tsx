@@ -82,7 +82,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface JobFormProps {
   onSuccess?: () => void;
-  initialValues?: Partial<FormValues>;
+  initialValues?: Partial<FormValues & { 
+    requirements: string[] | string, 
+    responsibilities: string[] | string 
+  }>;
   isEdit?: boolean;
   jobId?: number;
 }
@@ -90,6 +93,15 @@ interface JobFormProps {
 export default function JobForm({ onSuccess, initialValues, isEdit = false, jobId }: JobFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  
+  // Convert array to string for form display if needed
+  const requirementsString = Array.isArray(initialValues?.requirements) 
+    ? initialValues?.requirements.join("\n") 
+    : initialValues?.requirements || "";
+    
+  const responsibilitiesString = Array.isArray(initialValues?.responsibilities) 
+    ? initialValues?.responsibilities.join("\n") 
+    : initialValues?.responsibilities || "";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -101,8 +113,8 @@ export default function JobForm({ onSuccess, initialValues, isEdit = false, jobI
       experience: initialValues?.experience || "",
       education: initialValues?.education || "",
       description: initialValues?.description || "",
-      requirements: initialValues?.requirements ? initialValues.requirements.join("\n") : "",
-      responsibilities: initialValues?.responsibilities ? initialValues.responsibilities.join("\n") : "",
+      requirements: requirementsString,
+      responsibilities: responsibilitiesString,
       salary_range: initialValues?.salary_range || "",
       closing_date: initialValues?.closing_date ? new Date(initialValues.closing_date) : undefined,
       status: initialValues?.status || "Open"
@@ -125,10 +137,18 @@ export default function JobForm({ onSuccess, initialValues, isEdit = false, jobI
         .filter(item => item !== "");
 
       const jobData = {
-        ...data,
+        title: data.title,
+        department: data.department,
+        location: data.location,
+        type: data.type,
+        experience: data.experience,
+        education: data.education,
+        description: data.description,
         requirements: requirementsArray,
         responsibilities: responsibilitiesArray,
-        closing_date: data.closing_date.toISOString().split("T")[0]
+        salary_range: data.salary_range,
+        closing_date: data.closing_date.toISOString().split("T")[0],
+        status: data.status
       };
 
       if (isEdit && jobId) {
@@ -148,7 +168,7 @@ export default function JobForm({ onSuccess, initialValues, isEdit = false, jobI
         // Create new job
         const { error } = await supabase
           .from("jobs")
-          .insert([jobData]);
+          .insert(jobData);
           
         if (error) throw error;
         
