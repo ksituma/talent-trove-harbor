@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format, differenceInMonths } from "date-fns";
 import { CalendarIcon, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormSectionProps } from "@/types/supabase";
 
 const jobGroupOptions = [
   "Group A",
@@ -18,7 +18,7 @@ const jobGroupOptions = [
   "Other"
 ];
 
-const ExperienceSection = () => {
+const ExperienceSection = ({ onComplete }: FormSectionProps) => {
   const [experiences, setExperiences] = useState([{ id: 1 }]);
   const [startDates, setStartDates] = useState<{ [key: number]: Date | undefined }>({});
   const [endDates, setEndDates] = useState<{ [key: number]: Date | undefined }>({});
@@ -61,6 +61,21 @@ const ExperienceSection = () => {
       ...prev,
       [id]: date
     }));
+  };
+
+  const handleNext = () => {
+    onComplete({
+      experience: experiences.map(exp => ({
+        id: exp.id,
+        startDate: startDates[exp.id],
+        endDate: endDates[exp.id]
+      })),
+      totalExperience: totalExperience
+    });
+  };
+
+  const handlePrevious = () => {
+    // This would navigate back to the previous section
   };
 
   useEffect(() => {
@@ -206,8 +221,8 @@ const ExperienceSection = () => {
       </div>
 
       <div className="mt-6 flex justify-between">
-        <Button variant="outline" type="button">Previous: Education</Button>
-        <Button type="button">Next: Short Courses</Button>
+        <Button variant="outline" type="button" onClick={handlePrevious}>Previous: Education</Button>
+        <Button type="button" onClick={handleNext}>Next: Short Courses</Button>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormSectionProps } from "@/types/supabase";
 
 const ethnicityOptions = [
   "Asian/Asian British",
@@ -42,9 +42,19 @@ const disabilityTypeOptions = [
   "Other"
 ];
 
-const PersonalSection = () => {
+const PersonalSection = ({ onComplete }: FormSectionProps) => {
   const [date, setDate] = useState<Date>();
   const [hasDisability, setHasDisability] = useState<string>("no");
+
+  const handleNext = () => {
+    onComplete({
+      personal: {
+        firstName: document.getElementById("firstName") ? (document.getElementById("firstName") as HTMLInputElement).value : "",
+        lastName: document.getElementById("lastName") ? (document.getElementById("lastName") as HTMLInputElement).value : "",
+        dob: date
+      }
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -218,7 +228,7 @@ const PersonalSection = () => {
       )}
 
       <div className="flex justify-end">
-        <Button type="button">Next: Education</Button>
+        <Button type="button" onClick={handleNext}>Next: Education</Button>
       </div>
     </div>
   );

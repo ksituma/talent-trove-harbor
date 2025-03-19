@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormSectionProps } from "@/types/supabase";
 
 interface ProfessionalBody {
   id: number;
@@ -27,7 +27,7 @@ const professionalBodies = [
   "Other"
 ];
 
-const ProfessionalBodiesSection = () => {
+const ProfessionalBodiesSection = ({ onComplete }: FormSectionProps) => {
   const [isMember, setIsMember] = useState("yes");
   const [bodies, setBodies] = useState<ProfessionalBody[]>([{ id: 1, name: "" }]);
 
@@ -40,6 +40,16 @@ const ProfessionalBodiesSection = () => {
     setBodies(prevBodies => prevBodies.map(body => 
       body.id === id ? { ...body, [field]: value } : body
     ));
+  };
+
+  const handleNext = () => {
+    onComplete({
+      professionalBodies: isMember === "yes" ? bodies : []
+    });
+  };
+
+  const handlePrevious = () => {
+    // This would navigate back to the previous section
   };
 
   return (
@@ -154,8 +164,8 @@ const ProfessionalBodiesSection = () => {
       )}
 
       <div className="flex justify-between mt-6">
-        <Button variant="outline" type="button">Previous: Short Courses</Button>
-        <Button type="button">Next: Publications</Button>
+        <Button variant="outline" type="button" onClick={handlePrevious}>Previous: Short Courses</Button>
+        <Button type="button" onClick={handleNext}>Next: Publications</Button>
       </div>
     </div>
   );

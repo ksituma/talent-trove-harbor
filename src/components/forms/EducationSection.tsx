@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Upload, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormSectionProps } from "@/types/supabase";
 
 const educationLevelOptions = [
   "High School",
@@ -20,7 +21,7 @@ const educationLevelOptions = [
   "Other"
 ];
 
-const EducationSection = () => {
+const EducationSection = ({ onComplete }: FormSectionProps) => {
   const [educations, setEducations] = useState([{ id: 1 }]);
   const [graduationDates, setGraduationDates] = useState<{ [key: number]: Date | undefined }>({});
 
@@ -44,6 +45,20 @@ const EducationSection = () => {
       ...prev,
       [id]: date
     }));
+  };
+
+  const handleNext = () => {
+    onComplete({
+      education: educations.map(edu => ({
+        id: edu.id,
+        graduationDate: graduationDates[edu.id]
+      }))
+    });
+  };
+
+  const handlePrevious = () => {
+    // This would navigate back to the previous section
+    // In a form wizard, this functionality is typically handled by the parent component
   };
 
   return (
@@ -166,8 +181,8 @@ const EducationSection = () => {
       </Button>
 
       <div className="flex justify-between mt-6">
-        <Button variant="outline" type="button">Previous: Personal</Button>
-        <Button type="button">Next: Experience</Button>
+        <Button variant="outline" type="button" onClick={handlePrevious}>Previous: Personal</Button>
+        <Button type="button" onClick={handleNext}>Next: Experience</Button>
       </div>
     </div>
   );

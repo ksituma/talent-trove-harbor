@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Upload, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormSectionProps } from "@/types/supabase";
 
 interface ShortCourse {
   id: number;
@@ -16,7 +16,7 @@ interface ShortCourse {
   certificate?: File;
 }
 
-const ShortCoursesSection = () => {
+const ShortCoursesSection = ({ onComplete }: FormSectionProps) => {
   const [courses, setCourses] = useState<ShortCourse[]>([{ id: 1, name: "" }]);
 
   const addCourse = () => {
@@ -33,6 +33,16 @@ const ShortCoursesSection = () => {
     setCourses(prevCourses => prevCourses.map(course => 
       course.id === id ? { ...course, [field]: value } : course
     ));
+  };
+
+  const handleNext = () => {
+    onComplete({
+      shortCourses: courses
+    });
+  };
+
+  const handlePrevious = () => {
+    // This would navigate back to the previous section
   };
 
   return (
@@ -134,8 +144,8 @@ const ShortCoursesSection = () => {
       </Button>
 
       <div className="flex justify-between mt-6">
-        <Button variant="outline" type="button">Previous: Experience</Button>
-        <Button type="button">Next: Professional Bodies</Button>
+        <Button variant="outline" type="button" onClick={handlePrevious}>Previous: Experience</Button>
+        <Button type="button" onClick={handleNext}>Next: Professional Bodies</Button>
       </div>
     </div>
   );

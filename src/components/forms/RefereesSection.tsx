@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormSectionProps } from "@/types/supabase";
 
 interface Referee {
   id: number;
@@ -15,7 +15,7 @@ interface Referee {
   email: string;
 }
 
-const RefereesSection = () => {
+const RefereesSection = ({ onComplete }: FormSectionProps) => {
   const [referees, setReferees] = useState<Referee[]>([{ 
     id: 1, 
     name: "", 
@@ -42,6 +42,18 @@ const RefereesSection = () => {
     setReferees(prevReferees => prevReferees.map(referee => 
       referee.id === id ? { ...referee, [field]: value } : referee
     ));
+  };
+
+  const handleSubmit = () => {
+    if (!agreedToTerms) return;
+    
+    onComplete({
+      referees: referees
+    });
+  };
+
+  const handlePrevious = () => {
+    // This would navigate back to the previous section
   };
 
   return (
@@ -142,8 +154,8 @@ const RefereesSection = () => {
       </div>
 
       <div className="flex justify-between mt-6">
-        <Button variant="outline" type="button">Previous: Publications</Button>
-        <Button type="submit" disabled={!agreedToTerms}>Submit Application</Button>
+        <Button variant="outline" type="button" onClick={handlePrevious}>Previous: Publications</Button>
+        <Button type="submit" disabled={!agreedToTerms} onClick={handleSubmit}>Submit Application</Button>
       </div>
     </div>
   );
