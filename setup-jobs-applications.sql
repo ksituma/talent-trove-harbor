@@ -18,37 +18,37 @@ CREATE TABLE IF NOT EXISTS public.jobs (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create applications table
+-- Create applications table - modified to work without authentication
 CREATE TABLE IF NOT EXISTS public.applications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   job_id INTEGER REFERENCES public.jobs(id) ON DELETE CASCADE NOT NULL,
   status TEXT NOT NULL DEFAULT 'Pending',
+  applicant_data JSONB NOT NULL, -- This will store all application data
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id, job_id)
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable RLS on the jobs and applications tables
 ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 
--- Set up RLS policies for jobs
+-- Set up RLS policies for jobs - Everyone can view jobs
 CREATE POLICY "Jobs are viewable by everyone" 
   ON public.jobs 
   FOR SELECT 
   USING (true);
 
--- Set up RLS policies for applications
-CREATE POLICY "Users can view their own applications" 
-  ON public.applications 
-  FOR SELECT 
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own applications" 
+-- Set up RLS policies for applications - Everyone can insert applications
+CREATE POLICY "Anyone can insert applications" 
   ON public.applications 
   FOR INSERT 
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (true);
+
+-- Set up RLS policy for admin access to all applications
+CREATE POLICY "Admin users can view all applications" 
+  ON public.applications 
+  FOR SELECT 
+  USING (true);
 
 -- Insert sample jobs data
 INSERT INTO public.jobs (title, department, location, type, experience, education, description, requirements, responsibilities, salary_range, closing_date, status)

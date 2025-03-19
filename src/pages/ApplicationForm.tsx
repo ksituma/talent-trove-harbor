@@ -5,28 +5,48 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { initialJobListings } from "@/data/SampleJobs";
-import { useAuth } from "@/contexts/AuthContext";
-import { PersonalSection } from "@/components/forms/PersonalSection";
-import { EducationSection } from "@/components/forms/EducationSection";
-import { ExperienceSection } from "@/components/forms/ExperienceSection";
-import { ShortCoursesSection } from "@/components/forms/ShortCoursesSection";
-import { ProfessionalBodiesSection } from "@/components/forms/ProfessionalBodiesSection";
-import { PublicationsSection } from "@/components/forms/PublicationsSection";
-import { RefereesSection } from "@/components/forms/RefereesSection";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+// Import components directly
+import PersonalSection from "@/components/forms/PersonalSection";
+import EducationSection from "@/components/forms/EducationSection";
+import ExperienceSection from "@/components/forms/ExperienceSection";
+import ShortCoursesSection from "@/components/forms/ShortCoursesSection";
+import ProfessionalBodiesSection from "@/components/forms/ProfessionalBodiesSection";
+import PublicationsSection from "@/components/forms/PublicationsSection";
+import RefereesSection from "@/components/forms/RefereesSection";
 
 const ApplicationForm = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Find the job from our sample data
-  const job = initialJobListings.find(j => j.id.toString() === jobId);
+  const { data: job, isLoading } = useQuery({
+    queryKey: ['job', jobId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
+        .single();
+        
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const [activeTab, setActiveTab] = useState("personal");
   const [completedTabs, setCompletedTabs] = useState<string[]>([]);
+  const [applicantData, setApplicantData] = useState({
+    personal: {},
+    education: {},
+    experience: {},
+    shortCourses: {},
+    professionalBodies: {},
+    publications: {},
+    referees: {}
+  });
 
   // Check if a tab is completed
   const isTabCompleted = (tabId: string) => completedTabs.includes(tabId);
@@ -49,7 +69,11 @@ const ApplicationForm = () => {
   };
 
   // Handle when a section is completed
-  const handleSectionComplete = (tabId: string) => {
+  const handleSectionComplete = (tabId: string, data: any) => {
+    setApplicantData(prev => ({
+      ...prev,
+      [tabId]: data
+    }));
     markTabAsCompleted(tabId);
     goToNextTab();
   };
@@ -57,8 +81,17 @@ const ApplicationForm = () => {
   // Handle final submission
   const handleSubmit = async () => {
     try {
-      // In a real implementation, we would submit the application to Supabase
-      // For now, we'll just simulate a successful submission
+      // Insert application data into Supabase
+      const { error } = await supabase
+        .from('applications')
+        .insert({
+          job_id: Number(jobId),
+          status: 'Pending',
+          applicant_data: applicantData
+        });
+
+      if (error) throw error;
+      
       toast({
         title: "Application Submitted",
         description: "Your application has been successfully submitted.",
@@ -66,16 +99,20 @@ const ApplicationForm = () => {
       
       // Redirect to the jobs page after submission
       navigate("/jobs");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error submitting application",
-        description: "There was an error submitting your application. Please try again.",
+        description: error.message || "There was an error submitting your application. Please try again.",
       });
     }
   };
 
   // If job is not found
+  if (isLoading) {
+    return <div className="container py-8">Loading job details...</div>;
+  }
+
   if (!job) {
     return (
       <div className="container py-8">
@@ -126,31 +163,31 @@ const ApplicationForm = () => {
         </TabsList>
 
         <TabsContent value="personal">
-          <PersonalSection onComplete={() => handleSectionComplete("personal")} />
+          <PersonalSection onComplete={(data) => handleSectionComplete("personal", data)} />
         </TabsContent>
 
         <TabsContent value="education">
-          <EducationSection onComplete={() => handleSectionComplete("education")} />
+          <EducationSection onComplete={(data) => handleSectionComplete("education", data)} />
         </TabsContent>
 
         <TabsContent value="experience">
-          <ExperienceSection onComplete={() => handleSectionComplete("experience")} />
+          <ExperienceSection onComplete={(data) => handleSectionComplete("experience", data)} />
         </TabsContent>
 
         <TabsContent value="shortCourses">
-          <ShortCoursesSection onComplete={() => handleSectionComplete("shortCourses")} />
+          <ShortCoursesSection onComplete={(data) => handleSectionComplete("shortCourses", data)} />
         </TabsContent>
 
         <TabsContent value="professionalBodies">
-          <ProfessionalBodiesSection onComplete={() => handleSectionComplete("professionalBodies")} />
+          <ProfessionalBodiesSection onComplete={(data) => handleSectionComplete("professionalBodies", data)} />
         </TabsContent>
 
         <TabsContent value="publications">
-          <PublicationsSection onComplete={() => handleSectionComplete("publications")} />
+          <PublicationsSection onComplete={(data) => handleSectionComplete("publications", data)} />
         </TabsContent>
 
         <TabsContent value="referees">
-          <RefereesSection onComplete={() => handleSectionComplete("referees")} />
+          <RefereesSection onComplete={(data) => handleSectionComplete("referees", data)} />
         </TabsContent>
 
         <TabsContent value="review">

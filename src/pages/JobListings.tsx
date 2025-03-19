@@ -1,14 +1,13 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import { Job } from "@/models/JobTypes";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
@@ -20,72 +19,34 @@ const fetchJobs = async () => {
     .eq('status', 'Open');
   
   if (error) {
-    throw new Error(error.message);
+    throw error;
   }
   
   return data || initialJobListings;
 };
 
-const fetchUserApplications = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('applications')
-    .select('job_id')
-    .eq('user_id', userId);
-    
-  if (error) {
-    throw new Error(error.message);
-  }
-  
-  return data?.map(app => app.job_id) || [];
-};
-
 const JobListings = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const { data: jobs = initialJobListings, isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
-    // On error, fall back to sample data
-    onError: (error: Error) => {
-      console.error("Error fetching jobs:", error);
-      toast({
-        variant: "destructive",
-        title: "Error fetching jobs",
-        description: "Using sample data instead.",
-      });
-      return initialJobListings;
+    // Handle errors gracefully
+    onSettled: (data, error) => {
+      if (error) {
+        console.error("Error fetching jobs:", error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching jobs",
+          description: "Using sample data instead.",
+        });
+      }
     }
-  });
-
-  const { data: userApplications = [], isLoading: applicationsLoading } = useQuery({
-    queryKey: ['applications', user?.id],
-    queryFn: () => user ? fetchUserApplications(user.id) : Promise.resolve([]),
-    enabled: !!user,
   });
 
   const handleApply = (jobId: number) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to apply for this job",
-      });
-      navigate("/auth");
-      return;
-    }
-
-    // Check if user has already applied
-    if (userApplications.includes(jobId)) {
-      toast({
-        variant: "destructive",
-        title: "Application exists",
-        description: "You have already applied for this job",
-      });
-      return;
-    }
-
-    // Navigate to application form with job ID
+    // No login required - just navigate to application form
     navigate(`/apply/${jobId}`);
   };
 
@@ -122,9 +83,9 @@ const JobListings = () => {
               </Link>
               <Button 
                 onClick={() => handleApply(job.id)}
-                disabled={job.status !== "Open" || userApplications.includes(job.id)}
+                disabled={job.status !== "Open"}
               >
-                {userApplications.includes(job.id) ? "Applied" : "Apply Now"}
+                Apply Now
               </Button>
             </CardFooter>
           </Card>

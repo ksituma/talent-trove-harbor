@@ -1,62 +1,48 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { Job } from "@/models/JobTypes";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-// Import sample job data (we'll replace this with Supabase data later)
+// Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
 
 const JobDetails = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const [job, setJob] = useState<Job | null>(null);
-  const [hasApplied, setHasApplied] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    // In a real implementation, we would fetch data from Supabase
-    // For now, we'll use the sample data
-    const selectedJob = initialJobListings.find(j => j.id === Number(jobId));
-    if (selectedJob) {
-      setJob(selectedJob);
+  const { data: job, isLoading } = useQuery({
+    queryKey: ['job', jobId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
+        .single();
+        
+      if (error) {
+        // If there's an error, use sample data as fallback
+        const fallbackJob = initialJobListings.find(j => j.id === Number(jobId));
+        if (!fallbackJob) {
+          throw new Error("Job not found");
+        }
+        return fallbackJob;
+      }
+      
+      return data;
     }
-    setLoading(false);
-  }, [jobId]);
-
-  // For demo purposes, we're not checking application status
-  // In a real implementation, we would check if the user has applied
-  // to this particular job
+  });
 
   const handleApply = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to apply for this job",
-      });
-      navigate("/auth");
-      return;
-    }
-
-    if (hasApplied) {
-      toast({
-        variant: "destructive",
-        title: "Application exists",
-        description: "You have already applied for this job",
-      });
-      return;
-    }
-
     navigate(`/apply/${jobId}`);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="container py-8 mx-auto">Loading...</div>;
   }
 
@@ -122,15 +108,24 @@ const JobDetails = () => {
             </ul>
           </div>
 
+          <div className="space-y-2">
+            <h3 className="text-xl font-medium">Responsibilities</h3>
+            <ul className="list-disc pl-5 space-y-1 text-gray-700">
+              {job.responsibilities.map((resp, index) => (
+                <li key={index}>{resp}</li>
+              ))}
+            </ul>
+          </div>
+
           <div className="flex justify-between items-center pt-4 border-t mt-6">
             <Button variant="outline" onClick={() => navigate("/jobs")}>
               Back to Jobs
             </Button>
             <Button 
               onClick={handleApply}
-              disabled={job.status !== "Open" || hasApplied}
+              disabled={job.status !== "Open"}
             >
-              {hasApplied ? "Already Applied" : "Apply Now"}
+              Apply Now
             </Button>
           </div>
         </CardContent>

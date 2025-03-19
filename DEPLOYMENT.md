@@ -1,7 +1,7 @@
 
-# ATS Deployment Guide for Coolify
+# Kenya School of Government ATS Deployment Guide for Coolify
 
-This guide provides instructions for deploying the Kenya School of Government Applicant Tracking System (ATS) to Coolify.
+This guide provides detailed instructions for deploying the Kenya School of Government Applicant Tracking System (ATS) to Coolify with PostgreSQL integration.
 
 ## Prerequisites
 
@@ -9,6 +9,7 @@ This guide provides instructions for deploying the Kenya School of Government Ap
 2. A domain name (optional, but recommended)
 3. SSH access to your server
 4. Git repository access for your project
+5. A Supabase account and project (for database)
 
 ## Step 1: Set Up Your Ubuntu Server
 
@@ -32,30 +33,42 @@ If you don't already have a server with Coolify installed:
 
 3. After installation, access the Coolify dashboard by navigating to `http://YOUR_SERVER_IP:3000` in your browser.
 
-## Step 3: Connect Your Git Repository
+## Step 3: Set Up Supabase Database
 
-1. In the Coolify dashboard, go to "Sources" and click "Add new Source".
-2. Choose your Git provider (GitHub, GitLab, etc.) and follow the authentication steps.
-3. Select your ATS repository.
+Before deploying your application, you need to set up your Supabase database:
 
-## Step 4: Create a New Service
+1. Log in to your Supabase account at https://supabase.com
+2. Create a new project if you don't have one already
+3. Go to the SQL Editor in your Supabase project
+4. Execute the SQL commands from the `setup-jobs-applications.sql` file to create the necessary tables and sample data
+5. Make note of your Supabase project URL and anon key (found in Project Settings > API)
 
-1. In Coolify dashboard, go to "Resources" and click "New Resource".
-2. Select "Application".
-3. Choose your source (the Git repository you connected).
-4. Select the branch you want to deploy (usually `main` or `master`).
+## Step 4: Connect Your Git Repository to Coolify
 
-## Step 5: Configure Environment Variables
+1. In the Coolify dashboard, go to "Sources" and click "Add new Source"
+2. Choose your Git provider (GitHub, GitLab, etc.) and follow the authentication steps
+3. Select your ATS repository
 
-Add the following environment variables:
+## Step 5: Create a New Service in Coolify
+
+1. In Coolify dashboard, go to "Resources" and click "New Resource"
+2. Select "Application"
+3. Choose your source (the Git repository you connected)
+4. Select the branch you want to deploy (usually `main` or `master`)
+
+## Step 6: Configure Environment Variables
+
+Add the following environment variables to your Coolify deployment:
 
 ```
-VITE_SUPABASE_URL=https://sxysnxigsvuybqbjfxvb.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4eXNueGlnc3Z1eWJxYmpmeHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5Mzc5MDQsImV4cCI6MjA1NzUxMzkwNH0.TGe3ad7RoYWeRbZVyPSItHBcAQhTolqETjGd5jN2Ri8
+VITE_SUPABASE_URL=https://YOUR_SUPABASE_PROJECT_ID.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 NODE_VERSION=18
 ```
 
-## Step 6: Configure Build Settings
+Replace `YOUR_SUPABASE_PROJECT_ID` and `YOUR_SUPABASE_ANON_KEY` with the actual values from your Supabase project.
+
+## Step 7: Configure Build Settings
 
 Set the following build configuration:
 
@@ -63,36 +76,34 @@ Set the following build configuration:
 2. **Start Command**: `npm run preview`
 3. **Publish Directory**: `dist`
 
-## Step 7: Configure Network Settings
+## Step 8: Configure Network Settings
 
 1. Set the port to `4173` (Vite's preview port)
 2. Configure your domain if you have one
 
-## Step 8: Deploy
+## Step 9: Deploy
 
 1. Click "Deploy" to start the deployment process
 2. Monitor the deployment logs for any errors
 
-## Step 9: Set Up Supabase Database
+## Step 10: Verify Setup
 
-Before your application will work properly, you need to set up the database tables in Supabase:
+After deployment:
 
-1. Go to the [Supabase SQL Editor](https://supabase.com/dashboard/project/sxysnxigsvuybqbjfxvb/sql)
-2. Create a new query
-3. Copy and paste the contents of the `setup-jobs-applications.sql` file from your project
-4. Run the query to create the necessary tables and insert sample data
+1. Access your application at the provided URL
+2. Test the application to ensure all functionality works correctly:
+   - Check that jobs are displayed on the jobs page
+   - Verify you can view job details
+   - Confirm you can apply for jobs without logging in
+   - Test the admin interface and reports
 
-## Step 10: Configure Supabase Authentication
+## Step 11: Configure Admin Access (Optional)
 
-1. Go to the [Supabase Authentication Settings](https://supabase.com/dashboard/project/sxysnxigsvuybqbjfxvb/auth/providers)
-2. Add your production site URL to the Site URL and Redirect URLs list
-3. If you're using email confirmation, adjust the settings as needed for production
+If you want to secure the admin section:
 
-## Step 11: Final Steps
-
-1. Once deployed, access your application at the provided URL
-2. Test the application to ensure all functionality works correctly
-3. Set up SSL/TLS if not automatically configured
+1. Create a separate admin login page
+2. Set up authentication for the admin section in Supabase
+3. Update the RLS policies to secure admin-specific data
 
 ## Troubleshooting
 
@@ -102,6 +113,12 @@ If you encounter issues during deployment:
 2. Verify environment variables are correctly set
 3. Ensure your Supabase project is properly configured
 4. Check network/firewall settings on your server
+
+Common issues:
+
+- **Database connection errors**: Verify your Supabase URL and anon key
+- **Build failures**: Check your Node.js version and build command
+- **Application errors**: Review console logs for JavaScript errors
 
 ## Maintenance
 
@@ -118,4 +135,17 @@ For server maintenance:
    ```
 2. Monitor server resources through Coolify dashboard
 
-For any additional help or questions, please refer to the [Coolify documentation](https://coolify.io/docs).
+## Backup and Recovery
+
+1. Regularly backup your Supabase database using the Supabase dashboard
+2. Configure automated backups for your server
+3. Document the recovery process for your deployment
+
+## Security Considerations
+
+1. Set up SSL/TLS for your domain
+2. Regularly update dependencies
+3. Monitor access logs for suspicious activity
+4. Consider implementing rate limiting for application forms
+
+For any additional help or questions, please refer to the [Coolify documentation](https://coolify.io/docs) or the [Supabase documentation](https://supabase.com/docs).
