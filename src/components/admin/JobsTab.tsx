@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -459,3 +458,29 @@ const JobsTab: React.FC<JobsTabProps> = ({ onSelectJob, onAutoShortlist }) => {
 };
 
 export default JobsTab;
+
+/*
+To update jobs in the Supabase backend:
+
+1. Log in to the Supabase dashboard (https://supabase.com)
+2. Navigate to your project
+3. Select the "Table editor" from the sidebar
+4. Find the "jobs" table
+5. You can directly edit entries in the table view
+6. To add a new job, click "Insert row" and fill in the details
+7. You can also use the SQL editor to run batch updates or insertions
+
+Example SQL to insert a new job:
+
+INSERT INTO public.jobs (
+  title, department, location, type, experience, education, 
+  description, requirements, responsibilities, salary_range, closing_date, status
+) VALUES (
+  'New Job Title', 'Department Name', 'Location', 'Full-time', 
+  '3+ years', 'Bachelor''s Degree', 'Job description here',
+  ARRAY['Requirement 1', 'Requirement 2', 'Requirement 3'],
+  ARRAY['Responsibility 1', 'Responsibility 2', 'Responsibility 3'],
+  'KSh 80,000 - 120,000', '2023-12-31', 'Open'
+);
+
+*/

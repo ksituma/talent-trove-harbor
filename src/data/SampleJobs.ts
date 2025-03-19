@@ -54,10 +54,10 @@ export const initialJobListings: Job[] = [
     type: "Full-time",
     experience: "2+ years",
     education: "Bachelor's",
-    status: "Closed",
+    status: "Open",
     applications: 38,
     postDate: "2023-05-10",
-    closingDate: "2023-06-10",
+    closingDate: "2023-08-10",
     description: "We are looking for a Training Coordinator to organize and facilitate training programs at our Nakuru Campus. The role involves coordinating and scheduling training activities, managing participant registrations, facilitating communication between trainers and participants, and ensuring the smooth running of all training events.",
     requirements: [
       "Bachelor's degree in Education, HR, or related field",
@@ -79,7 +79,7 @@ export const initialJobListings: Job[] = [
     status: "Open",
     applications: 18,
     postDate: "2023-06-25",
-    closingDate: "2023-07-25",
+    closingDate: "2023-09-25",
     description: "We are seeking a Finance Manager to oversee our financial operations at the Kenya School of Government headquarters. The successful candidate will be responsible for budget planning and management, financial reporting, audit coordination, and ensuring compliance with financial regulations and policies.",
     requirements: [
       "Master's degree in Finance, Accounting, or related field",
@@ -101,7 +101,7 @@ export const initialJobListings: Job[] = [
     status: "Open",
     applications: 31,
     postDate: "2023-06-18",
-    closingDate: "2023-07-18",
+    closingDate: "2023-08-18",
     description: "We are looking for an ICT Officer to manage our information systems and provide technical support across all campuses. The role involves network administration, hardware and software maintenance, user support, and contributing to the organization's digital transformation initiatives.",
     requirements: [
       "Bachelor's degree in Computer Science, IT, or related field",
@@ -110,6 +110,50 @@ export const initialJobListings: Job[] = [
       "Experience with database management and information systems",
       "Certification in relevant IT areas (CCNA, CompTIA, etc.)",
       "Excellent problem-solving skills and customer service orientation"
+    ]
+  },
+  {
+    id: 6,
+    title: "Human Resource Officer",
+    department: "Human Resources",
+    location: "Nairobi",
+    type: "Full-time",
+    experience: "4+ years",
+    education: "Bachelor's",
+    status: "Open",
+    applications: 27,
+    postDate: "2023-07-01",
+    closingDate: "2023-09-01",
+    description: "We are seeking a Human Resource Officer to join our HR department at the Kenya School of Government. The successful candidate will be responsible for recruitment, employee relations, performance management, and HR policy implementation across the organization.",
+    requirements: [
+      "Bachelor's degree in Human Resource Management or related field",
+      "4+ years of experience in HR roles, preferably in public institutions",
+      "Knowledge of Kenyan labor laws and HR best practices",
+      "Experience with HRIS and personnel management systems",
+      "Strong interpersonal and conflict resolution skills",
+      "Certification from a recognized HR professional body"
+    ]
+  },
+  {
+    id: 7,
+    title: "Library Assistant",
+    department: "Library Services",
+    location: "Embu",
+    type: "Part-time",
+    experience: "1+ years",
+    education: "Diploma",
+    status: "Open",
+    applications: 15,
+    postDate: "2023-07-05",
+    closingDate: "2023-08-05",
+    description: "We are looking for a Library Assistant to join our team at the Embu Campus. The successful candidate will assist in cataloging, shelving, and maintaining library resources, as well as providing assistance to library users and supporting the digitization of library materials.",
+    requirements: [
+      "Diploma in Library Science or related field",
+      "1+ years of experience in a library setting",
+      "Knowledge of library cataloging systems",
+      "Proficiency in digital resource management",
+      "Good customer service skills",
+      "Basic computer literacy"
     ]
   }
 ];
