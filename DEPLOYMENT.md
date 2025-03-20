@@ -1,3 +1,4 @@
+
 # Kenya School of Government ATS Deployment Guide for Coolify
 
 This guide provides detailed instructions for deploying the Kenya School of Government Applicant Tracking System (ATS) to Coolify with PostgreSQL integration.
@@ -103,13 +104,41 @@ After deployment:
    - Confirm you can apply for jobs without logging in
    - Test the admin interface and reports
 
-## Step 11: Configure Admin Access (Optional)
+## Step 11: Configure Admin Access
 
-If you want to secure the admin section:
+For the admin login to work properly:
 
-1. Create a separate admin login page
-2. Set up authentication for the admin section in Supabase
-3. Update the RLS policies to secure admin-specific data
+1. Go to your Supabase dashboard
+2. Navigate to Authentication > Users
+3. Make sure there's a user with email "admin@ksg.ac.ke" 
+4. If not, create a new user with:
+   - Email: admin@ksg.ac.ke
+   - Password: admin123
+5. If needed, you can use SQL to create this user:
+   ```sql
+   -- Run this in Supabase SQL Editor
+   INSERT INTO auth.users (
+     instance_id, id, aud, role, email, encrypted_password, 
+     email_confirmed_at, recovery_sent_at, last_sign_in_at, 
+     raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+   ) 
+   VALUES (
+     '00000000-0000-0000-0000-000000000000', 
+     gen_random_uuid(), 
+     'authenticated', 
+     'authenticated', 
+     'admin@ksg.ac.ke', 
+     crypt('admin123', gen_salt('bf')), 
+     now(), 
+     now(), 
+     now(), 
+     '{"provider":"email","providers":["email"]}', 
+     '{}', 
+     now(), 
+     now()
+   )
+   ON CONFLICT (email) DO NOTHING;
+   ```
 
 ## Troubleshooting
 
@@ -125,6 +154,7 @@ Common issues:
 - **Database connection errors**: Verify your Supabase URL and anon key
 - **Build failures**: Check your Node.js version and build command
 - **Application errors**: Review console logs for JavaScript errors
+- **Login issues**: Verify you've created the admin user in Supabase
 
 ## Troubleshooting SSL Certificate Issues
 
@@ -143,6 +173,64 @@ If you encounter the "NET::ERR_CERT_AUTHORITY_INVALID" error:
    - Verify that SSL settings in Coolify are correctly set up
    - Ensure your domain is properly pointing to your server IP
    - Allow time for DNS changes and certificate issuance to propagate
+
+## Docker Deployment (Alternative)
+
+You can also deploy the application using Docker directly:
+
+1. Create a `Dockerfile` in your project root:
+   ```dockerfile
+   FROM node:18-alpine AS build
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm ci
+   COPY . .
+   RUN npm run build
+
+   FROM node:18-alpine AS deploy
+   WORKDIR /app
+   COPY --from=build /app/dist ./dist
+   COPY --from=build /app/package*.json ./
+   RUN npm ci --omit=dev
+   EXPOSE 4173
+   ENV HOST=0.0.0.0
+   ENV PORT=4173
+   CMD ["npm", "run", "preview"]
+   ```
+
+2. Create a `.dockerignore` file:
+   ```
+   node_modules
+   dist
+   .git
+   .gitignore
+   .env
+   ```
+
+3. Build and run the Docker image:
+   ```bash
+   docker build -t ksg-ats .
+   docker run -p 4173:4173 -e VITE_SUPABASE_URL=https://YOUR_SUPABASE_PROJECT_ID.supabase.co -e VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY ksg-ats
+   ```
+
+4. For production with Docker Compose, create a `docker-compose.yml` file:
+   ```yaml
+   version: '3.8'
+   services:
+     app:
+       build: .
+       ports:
+         - "4173:4173"
+       environment:
+         - VITE_SUPABASE_URL=https://YOUR_SUPABASE_PROJECT_ID.supabase.co
+         - VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+       restart: unless-stopped
+   ```
+
+5. Run with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
 
 ## Maintenance
 

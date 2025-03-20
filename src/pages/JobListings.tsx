@@ -7,24 +7,34 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JobType } from "@/types/supabase";
+import { Loader2 } from "lucide-react";
 
 // Import sample job data as fallback
 import { initialJobListings } from "@/data/SampleJobs";
 
 const fetchJobs = async (): Promise<JobType[]> => {
   try {
+    console.log("Fetching jobs from Supabase...");
     const { data, error } = await supabase
       .from('jobs')
       .select('*')
       .eq('status', 'Open');
     
     if (error) {
+      console.error("Supabase error:", error);
       throw error;
     }
     
-    return data || [];
+    if (!data || data.length === 0) {
+      console.log("No jobs found in Supabase, using sample data");
+      return initialJobListings as unknown as JobType[];
+    }
+    
+    console.log("Jobs fetched successfully:", data.length);
+    return data;
   } catch (error) {
     console.error("Error fetching jobs:", error);
+    console.log("Falling back to sample data");
     return initialJobListings as unknown as JobType[];
   }
 };
@@ -33,17 +43,23 @@ const JobListings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: jobs = initialJobListings, isLoading: jobsLoading, error: jobsError } = useQuery({
+  const { data: jobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     meta: {
-      onError: (error: any) => {
-        console.error("Error fetching jobs:", error);
-        toast({
-          variant: "destructive",
-          title: "Error fetching jobs",
-          description: "Using sample data instead.",
-        });
+      onSettled: (data, error) => {
+        if (error) {
+          console.error("Error in query:", error);
+          toast({
+            variant: "destructive",
+            title: "Error fetching jobs",
+            description: "Using sample data instead.",
+          });
+        } else if (data && data.length > 0) {
+          console.log(`Displaying ${data.length} jobs`);
+        } else {
+          console.log("No jobs to display");
+        }
       }
     }
   });
@@ -53,7 +69,28 @@ const JobListings = () => {
   };
 
   if (jobsLoading) {
-    return <div className="container py-8 mx-auto">Loading jobs...</div>;
+    return (
+      <div className="container py-8 mx-auto text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p>Loading jobs...</p>
+      </div>
+    );
+  }
+
+  if (jobsError) {
+    console.error("Error displaying jobs:", jobsError);
+  }
+
+  if (!jobs || jobs.length === 0) {
+    return (
+      <div className="container py-8 mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Current Job Openings</h1>
+        <div className="text-center p-8 bg-gray-50 rounded-lg">
+          <p className="text-lg text-gray-600">No job openings are currently available.</p>
+          <p className="mt-2 text-sm text-gray-500">Please check back later for new opportunities.</p>
+        </div>
+      </div>
+    );
   }
 
   return (

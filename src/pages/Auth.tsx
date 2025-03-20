@@ -6,16 +6,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 
 export default function Auth() {
   const [email, setEmail] = useState('admin@ksg.ac.ke');
   const [password, setPassword] = useState('admin123');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // If user is already logged in, redirect to admin
+  if (user) {
+    navigate('/admin');
+    return null;
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +37,8 @@ export default function Auth() {
         description: 'Welcome to the admin dashboard',
       });
     } catch (error: any) {
-      setError(error.message || 'Failed to sign in');
+      console.error("Auth error:", error);
+      setError(error.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +83,14 @@ export default function Auth() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
         </CardContent>
