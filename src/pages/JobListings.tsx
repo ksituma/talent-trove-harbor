@@ -17,8 +17,7 @@ const fetchJobs = async (): Promise<JobType[]> => {
     console.log("Fetching jobs from Supabase...");
     const { data, error } = await supabase
       .from('jobs')
-      .select('*')
-      .eq('status', 'Open');
+      .select('*');
     
     if (error) {
       console.error("Supabase error:", error);
@@ -65,6 +64,7 @@ const JobListings = () => {
   });
 
   const handleApply = (jobId: number) => {
+    console.log(`Navigating to application form for job ID: ${jobId}`);
     navigate(`/apply/${jobId}`);
   };
 
