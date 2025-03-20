@@ -13,8 +13,6 @@ export default defineConfig(({ mode }) => ({
   preview: {
     host: "0.0.0.0",
     port: 4173,
-    // Disable HTTPS for preview server
-    https: false
   },
   plugins: [
     react(),
