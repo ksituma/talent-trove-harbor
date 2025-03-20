@@ -1,0 +1,11 @@
+
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "4173:4173"
+    environment:
+      - VITE_SUPABASE_URL=https://sxysnxigsvuybqbjfxvb.supabase.co
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4eXNueGlnc3Z1eWJxYmpmeHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5Mzc5MDQsImV4cCI6MjA1NzUxMzkwNH0.TGe3ad7RoYWeRbZVyPSItHBcAQhTolqETjGd5jN2Ri8
+    restart: unless-stopped

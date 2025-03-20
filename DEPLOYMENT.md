@@ -41,7 +41,8 @@ Before deploying your application, you need to set up your Supabase database:
 2. Create a new project if you don't have one already
 3. Go to the SQL Editor in your Supabase project
 4. Execute the SQL commands from the `setup-jobs-applications.sql` file to create the necessary tables and sample data
-5. Make note of your Supabase project URL and anon key (found in Project Settings > API)
+5. Execute the SQL commands from the `setup-admin-user.sql` file to create the admin user
+6. Make note of your Supabase project URL and anon key (found in Project Settings > API)
 
 ## Step 4: Connect Your Git Repository to Coolify
 
@@ -155,24 +156,6 @@ Common issues:
 - **Build failures**: Check your Node.js version and build command
 - **Application errors**: Review console logs for JavaScript errors
 - **Login issues**: Verify you've created the admin user in Supabase
-
-## Troubleshooting SSL Certificate Issues
-
-If you encounter the "NET::ERR_CERT_AUTHORITY_INVALID" error:
-
-1. **For development/testing:**
-   - Access your site using HTTP instead of HTTPS by changing the URL prefix
-   - Add an SSL exception in your browser (not recommended for production use)
-
-2. **For production:**
-   - Configure a proper SSL certificate through Coolify
-   - Use Let's Encrypt for free, automated SSL certificates
-   - If using a custom domain, ensure DNS settings are properly configured
-
-3. **Check SSL configuration:**
-   - Verify that SSL settings in Coolify are correctly set up
-   - Ensure your domain is properly pointing to your server IP
-   - Allow time for DNS changes and certificate issuance to propagate
 
 ## Docker Deployment (Alternative)
 

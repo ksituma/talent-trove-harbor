@@ -31,6 +31,7 @@ export default function Auth() {
     setError('');
 
     try {
+      console.log("Attempting to sign in with:", email);
       await signIn(email, password);
       toast({
         title: 'Signed in successfully',
@@ -39,6 +40,11 @@ export default function Auth() {
     } catch (error: any) {
       console.error("Auth error:", error);
       setError(error.message || 'Failed to sign in. Please check your credentials.');
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: error.message || 'Failed to sign in. Please check your credentials.',
+      });
     } finally {
       setIsLoading(false);
     }
