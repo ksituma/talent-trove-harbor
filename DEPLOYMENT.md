@@ -1,4 +1,3 @@
-
 # Kenya School of Government ATS Deployment Guide for Coolify
 
 This guide provides detailed instructions for deploying the Kenya School of Government Applicant Tracking System (ATS) to Coolify with PostgreSQL integration.
@@ -80,6 +79,13 @@ Set the following build configuration:
 
 1. Set the port to `4173` (Vite's preview port)
 2. Configure your domain if you have one
+3. For HTTPS configuration:
+   - **Option 1 (Recommended for Production)**: Set up a proper SSL certificate
+     - In Coolify dashboard, go to your service settings
+     - Configure SSL using Let's Encrypt or upload your own certificate
+   - **Option 2 (For Testing Only)**: Use HTTP instead
+     - Access your application using http:// instead of https://
+     - In the URL bar, manually change https:// to http://
 
 ## Step 9: Deploy
 
@@ -119,6 +125,24 @@ Common issues:
 - **Database connection errors**: Verify your Supabase URL and anon key
 - **Build failures**: Check your Node.js version and build command
 - **Application errors**: Review console logs for JavaScript errors
+
+## Troubleshooting SSL Certificate Issues
+
+If you encounter the "NET::ERR_CERT_AUTHORITY_INVALID" error:
+
+1. **For development/testing:**
+   - Access your site using HTTP instead of HTTPS by changing the URL prefix
+   - Add an SSL exception in your browser (not recommended for production use)
+
+2. **For production:**
+   - Configure a proper SSL certificate through Coolify
+   - Use Let's Encrypt for free, automated SSL certificates
+   - If using a custom domain, ensure DNS settings are properly configured
+
+3. **Check SSL configuration:**
+   - Verify that SSL settings in Coolify are correctly set up
+   - Ensure your domain is properly pointing to your server IP
+   - Allow time for DNS changes and certificate issuance to propagate
 
 ## Maintenance
 
